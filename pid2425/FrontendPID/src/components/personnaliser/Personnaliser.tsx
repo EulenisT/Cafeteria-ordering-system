@@ -1,5 +1,5 @@
-function Personnaliser(){
-    return <h3>Page personnaliser </h3>
+function Personnaliser() {
+  return <h3>Page personnaliser </h3>;
 }
 
 export default Personnaliser;
