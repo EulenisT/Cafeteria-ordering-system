@@ -1,6 +1,6 @@
-import {SandwichesResponse} from "../types.ts";
+import {SandwichesResponse} from "../../types.ts";
 import {useQuery} from "@tanstack/react-query";
-import {getSandwiches} from "../api/sandwichsapi.ts";
+import {getSandwiches} from "../../api/sandwichsapi.ts";
 
 function SandwichsList() {
 

@@ -1,6 +1,6 @@
-import {GarnitureResponse} from "../types.ts";
+import {GarnitureResponse} from "../../types.ts";
 import {useQuery} from "@tanstack/react-query";
-import {getGarniture} from "../api/garnitureapi.ts";
+import {getGarniture} from "../../api/garnitureapi.ts";
 
 function GarnitureList() {
 
