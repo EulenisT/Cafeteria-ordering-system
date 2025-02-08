@@ -31,7 +31,7 @@ export default function Menu() {
   if (!isSuccess) {
     return <span>Loading...</span>;
   } else if (error) {
-    return <span>Error when fetching sandwiches...</span>;
+    return <span>Erreur...</span>;
   }
 
   return (
