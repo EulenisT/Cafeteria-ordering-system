@@ -16,13 +16,13 @@ const columns: GridColDef[] = [
     headerName: "Disponibilité",
     width: 130,
     renderCell: (params) => (
-        <IconButton>
-          {params.value ? (
-              <CheckCircleIcon sx={{ color: "green" }} />
-          ) : (
-              <CancelIcon sx={{ color: "red" }} />
-          )}
-        </IconButton>
+      <IconButton>
+        {params.value ? (
+          <CheckCircleIcon sx={{ color: "green" }} />
+        ) : (
+          <CancelIcon sx={{ color: "red" }} />
+        )}
+      </IconButton>
     ),
   },
 ];
@@ -34,22 +34,22 @@ export default function Personnaliser() {
   });
 
   if (isLoading) {
-    return ( <Grid
-            container
-            spacing={4}
-            justifyContent="center"
-            alignItems="center"
-            style={{ minHeight: "50vh" }}
-        >
-          <Grid item>
-            <CircularProgress sx={{ color: '#FFB6C1' }}/>
-          </Grid>
+    return (
+      <Grid
+        container
+        spacing={4}
+        justifyContent="center"
+        alignItems="center"
+        style={{ minHeight: "50vh" }}
+      >
+        <Grid item>
+          <CircularProgress sx={{ color: "#FFB6C1" }} />
         </Grid>
+      </Grid>
     );
   } else if (error) {
     return <span>Erreur...</span>;
   }
-
 
   const rows = data?.map((garniture: GarnitureResponse, index: number) => ({
     id: index + 1,
@@ -58,15 +58,15 @@ export default function Personnaliser() {
   }));
 
   return (
-      <Paper sx={{ height: 400, width: "100%" }}>
-        <DataGrid
-            rows={rows}
-            columns={columns}
-            pageSizeOptions={[5, 10]}
-            checkboxSelection
-            sx={{ border: 0 }}
-            isRowSelectable={(params) => params.row.disponible}
-        />
-      </Paper>
+    <Paper sx={{ height: 400, width: "100%" }}>
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        pageSizeOptions={[5, 10]}
+        checkboxSelection
+        sx={{ border: 0 }}
+        isRowSelectable={(params) => params.row.disponible}
+      />
+    </Paper>
   );
 }

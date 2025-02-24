@@ -14,7 +14,7 @@ import pouletCurry from "../../../assets/images/pouletCurry.png";
 import boulette from "../../../assets/images/boulette.png";
 import fromage from "../../../assets/images/fromage.png";
 import jambonFromage from "../../../assets/images/jambonFromage.png";
-import CircularProgress from '@mui/material/CircularProgress';
+import CircularProgress from "@mui/material/CircularProgress";
 
 const imageMap: { [key: string]: string } = {
   "Poulet Curry": pouletCurry,
@@ -30,17 +30,18 @@ export default function Menu() {
   });
 
   if (!isSuccess) {
-    return ( <Grid
-            container
-            spacing={4}
-            justifyContent="center"
-            alignItems="center"
-            style={{ minHeight: "50vh" }}
-        >
-          <Grid item>
-            <CircularProgress sx={{ color: '#FFB6C1' }}/>
-          </Grid>
+    return (
+      <Grid
+        container
+        spacing={4}
+        justifyContent="center"
+        alignItems="center"
+        style={{ minHeight: "50vh" }}
+      >
+        <Grid item>
+          <CircularProgress sx={{ color: "#FFB6C1" }} />
         </Grid>
+      </Grid>
     );
   } else if (error) {
     return <span>Erreur...</span>;

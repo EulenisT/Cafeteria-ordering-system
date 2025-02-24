@@ -11,16 +11,26 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
+  useMediaQuery,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import LocalCafeIcon from "@mui/icons-material/LocalCafe";
 import MenuIcon from "@mui/icons-material/Menu";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { menuButtons } from "./MenuButtons.ts";
+import LogoutButton from "./logout.tsx";
 
 const NavBar = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
   const toggleDrawer = (open: boolean) => setOpenDrawer(open);
+
+  const isLargeScreen = useMediaQuery("(min-width:1024px)");
+
+  useEffect(() => {
+    if (isLargeScreen) {
+      setOpenDrawer(false);
+    }
+  }, [isLargeScreen]);
 
   return (
     <Box sx={{ width: "100%", marginBottom: "35px" }}>
@@ -33,7 +43,6 @@ const NavBar = () => {
         }}
       ></Box>
 
-      {/* barre de navigation*/}
       <AppBar
         position="static"
         sx={{ backgroundColor: "rgba(239,239,239,0.83)" }}
@@ -57,10 +66,9 @@ const NavBar = () => {
               textDecoration: "none",
             }}
           >
-            CafeIsfce
+            Cafe
           </Typography>
 
-          {/* Menu Hamburger sur mobile */}
           <IconButton
             sx={{ display: { xs: "block", md: "none" }, ml: "auto" }}
             onClick={() => toggleDrawer(true)}
@@ -68,7 +76,6 @@ const NavBar = () => {
             <MenuIcon />
           </IconButton>
 
-          {/*  Boutons de navigation sur les grands écrans */}
           <Stack
             direction="row"
             spacing={2}
@@ -79,16 +86,17 @@ const NavBar = () => {
                 key={item.path}
                 component={Link}
                 to={item.path}
-                sx={{ color: "black", margin: "0 10px" }}
+                sx={{  color: "#171717", fontFamily: "'Roboto', sans-serif", margin: "0 10px" }}
               >
                 {item.text}
               </Button>
             ))}
+            <LogoutButton sx={{  color: "#171717", fontFamily: "'Roboto', sans-serif", margin: "0 10px" }} />
           </Stack>
         </Toolbar>
       </AppBar>
 
-      {/* Drawer (Menu Hamburger) */}
+      {/* Drawer */}
       <Drawer
         anchor="right"
         open={openDrawer}
@@ -108,6 +116,11 @@ const NavBar = () => {
               </ListItem>
             ))}
           </List>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => toggleDrawer(false)}>
+              <LogoutButton sx={{ color: "grey" }} />
+            </ListItemButton>
+          </ListItem>
         </Box>
       </Drawer>
     </Box>
