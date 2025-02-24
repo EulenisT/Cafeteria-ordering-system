@@ -6,13 +6,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import NavBar from "./components/navBar/NavBar.tsx";
 import Footer from "./components/footer/Footer.tsx";
-import HomePage from "./components/homePage/HomePage.tsx";
-import Menu from "./components/menu/Menu.tsx";
-import Compte from "./components/compte/Compte.tsx";
-import Historique from "./components/historique/Historique.tsx";
-import Personnaliser from "./components/personnaliser/Personnaliser.tsx";
-import Panier from "./components/panier/Panier.tsx";
-import PageNotFound from "./components/pageNotFound/PageNotFound.tsx";
+import HomePage from "./components/pages/homePage/HomePage.tsx";
+import Menu from "./components/pages/menu/Menu.tsx";
+import Compte from "./components/pages/compte/Compte.tsx";
+import Historique from "./components/pages/historique/Historique.tsx";
+import Personnaliser from "./components/pages/personnaliser/Personnaliser.tsx";
+import Panier from "./components/pages/panier/Panier.tsx";
+import PageNotFound from "./components/pages/pageNotFound/PageNotFound.tsx";
 
 const queryClient = new QueryClient();
 

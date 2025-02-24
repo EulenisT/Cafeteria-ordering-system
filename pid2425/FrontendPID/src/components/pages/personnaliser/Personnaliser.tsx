@@ -1,8 +1,8 @@
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
 import { useQuery } from "@tanstack/react-query";
-import { getGarniture } from "../../api/garnitureapi.ts";
-import { GarnitureResponse } from "../../types.ts";
+import { getGarniture } from "../../../api/garnitureapi.ts";
+import { GarnitureResponse } from "../../../types.ts";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import IconButton from "@mui/material/IconButton";

@@ -7,13 +7,13 @@ import Grid from "@mui/material/Grid";
 import AddIcon from "@mui/icons-material/Add";
 import { IconButton } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import { getSandwiches } from "../../api/sandwichsapi.ts";
-import { SandwichesResponse } from "../../types.ts";
+import { getSandwiches } from "../../../api/sandwichsapi.ts";
+import { SandwichesResponse } from "../../../types.ts";
 
-import pouletCurry from "../../assets/images/pouletCurry.png";
-import boulette from "../../assets/images/boulette.png";
-import fromage from "../../assets/images/fromage.png";
-import jambonFromage from "../../assets/images/jambonFromage.png";
+import pouletCurry from "../../../assets/images/pouletCurry.png";
+import boulette from "../../../assets/images/boulette.png";
+import fromage from "../../../assets/images/fromage.png";
+import jambonFromage from "../../../assets/images/jambonFromage.png";
 import CircularProgress from '@mui/material/CircularProgress';
 
 const imageMap: { [key: string]: string } = {
