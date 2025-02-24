@@ -6,6 +6,8 @@ import { GarnitureResponse } from "../../types.ts";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import IconButton from "@mui/material/IconButton";
+import Grid from "@mui/material/Grid";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const columns: GridColDef[] = [
   { field: "nom", headerName: "Garniture", width: 130 },
@@ -31,8 +33,22 @@ export default function Personnaliser() {
     queryFn: getGarniture,
   });
 
-  if (isLoading) return <span>Loading...</span>;
-  if (error) return <span>Error...</span>;
+  if (isLoading) {
+    return ( <Grid
+            container
+            spacing={4}
+            justifyContent="center"
+            alignItems="center"
+            style={{ minHeight: "50vh" }}
+        >
+          <Grid item>
+            <CircularProgress sx={{ color: '#FFB6C1' }}/>
+          </Grid>
+        </Grid>
+    );
+  } else if (error) {
+    return <span>Erreur...</span>;
+  }
 
 
   const rows = data?.map((garniture: GarnitureResponse, index: number) => ({
