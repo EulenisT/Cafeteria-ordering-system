@@ -10,3 +10,10 @@ export type GarnitureResponse = {
   nom: string;
   disponible: boolean;
 };
+
+
+export type UserResponse = {
+  username: string;
+  email: string;
+  solde: number;
+}
