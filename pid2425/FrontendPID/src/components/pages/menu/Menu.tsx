@@ -18,8 +18,8 @@ import CircularProgress from "@mui/material/CircularProgress";
 
 const imageMap: { [key: string]: string } = {
   "Poulet Curry": pouletCurry,
-  "Boulette": boulette,
-  "Fromage": fromage,
+  Boulette: boulette,
+  Fromage: fromage,
   "Jambon Fromage": jambonFromage,
 };
 

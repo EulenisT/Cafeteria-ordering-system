@@ -86,12 +86,22 @@ const NavBar = () => {
                 key={item.path}
                 component={Link}
                 to={item.path}
-                sx={{  color: "#171717", fontFamily: "'Roboto', sans-serif", margin: "0 10px" }}
+                sx={{
+                  color: "#171717",
+                  fontFamily: "'Roboto', sans-serif",
+                  margin: "0 10px",
+                }}
               >
                 {item.text}
               </Button>
             ))}
-            <LogoutButton sx={{  color: "#171717", fontFamily: "'Roboto', sans-serif", margin: "0 10px" }} />
+            <LogoutButton
+              sx={{
+                color: "#171717",
+                fontFamily: "'Roboto', sans-serif",
+                margin: "0 10px",
+              }}
+            />
           </Stack>
         </Toolbar>
       </AppBar>

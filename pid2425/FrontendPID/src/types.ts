@@ -11,9 +11,8 @@ export type GarnitureResponse = {
   disponible: boolean;
 };
 
-
 export type UserResponse = {
   username: string;
   email: string;
   solde: number;
-}
+};

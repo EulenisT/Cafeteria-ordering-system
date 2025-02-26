@@ -27,17 +27,19 @@ export default function App() {
       initOptions={{
         onLoad: "login-required",
       }}
-      LoadingComponent={ <Grid
+      LoadingComponent={
+        <Grid
           container
           spacing={4}
           justifyContent="center"
           alignItems="center"
           style={{ minHeight: "100vh" }}
-      >
-        <Grid item>
-          <CircularProgress sx={{ color: "#FFB6C1" }} />
+        >
+          <Grid item>
+            <CircularProgress sx={{ color: "#FFB6C1" }} />
+          </Grid>
         </Grid>
-      </Grid> }
+      }
     >
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
