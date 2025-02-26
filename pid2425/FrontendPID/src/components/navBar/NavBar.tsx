@@ -66,7 +66,7 @@ const NavBar = () => {
               textDecoration: "none",
             }}
           >
-            Cafe
+            Cafet
           </Typography>
 
           <IconButton
