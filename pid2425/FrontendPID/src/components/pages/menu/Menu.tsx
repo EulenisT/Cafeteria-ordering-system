@@ -7,7 +7,7 @@ import Grid from "@mui/material/Grid";
 import AddIcon from "@mui/icons-material/Add";
 import { IconButton } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import { getSandwiches } from "../../../api/sandwichsapi.ts";
+import { getSandwiches } from "../../../api/sandwichsApi.ts";
 import { SandwichesResponse } from "../../../types.ts";
 
 import pouletCurry from "../../../assets/images/pouletCurry.png";
@@ -18,8 +18,8 @@ import CircularProgress from "@mui/material/CircularProgress";
 
 const imageMap: { [key: string]: string } = {
   "Poulet Curry": pouletCurry,
-  Boulette: boulette,
-  Fromage: fromage,
+  "Boulette": boulette,
+  "Fromage": fromage,
   "Jambon Fromage": jambonFromage,
 };
 
