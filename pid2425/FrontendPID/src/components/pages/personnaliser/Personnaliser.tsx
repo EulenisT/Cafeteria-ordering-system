@@ -1,72 +1,138 @@
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import Paper from "@mui/material/Paper";
 import { useQuery } from "@tanstack/react-query";
 import { getGarniture } from "../../../api/garnitureApi.ts";
-import { GarnitureResponse } from "../../../types.ts";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import CancelIcon from "@mui/icons-material/Cancel";
-import IconButton from "@mui/material/IconButton";
-import Grid from "@mui/material/Grid";
-import CircularProgress from "@mui/material/CircularProgress";
-
-const columns: GridColDef[] = [
-  { field: "nom", headerName: "Garniture", width: 130 },
-  {
-    field: "disponible",
-    headerName: "Disponibilité",
-    width: 130,
-    renderCell: (params) => (
-      <IconButton>
-        {params.value ? (
-          <CheckCircleIcon sx={{ color: "green" }} />
-        ) : (
-          <CancelIcon sx={{ color: "red" }} />
-        )}
-      </IconButton>
-    ),
-  },
-];
+import { getSauces } from "../../../api/saucesApi.ts";
+import { GarnitureResponse, SaucesResponse } from "../../../types.ts";
+import {
+  Grid,
+  Button,
+  Paper,
+  Typography,
+  CircularProgress,
+  Divider,
+} from "@mui/material";
+import { useState } from "react";
 
 export default function Personnaliser() {
-  const { data, error, isLoading } = useQuery({
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+
+  const { data: garnitureData, isLoading: garnitureLoading } = useQuery({
     queryKey: ["garniture"],
     queryFn: getGarniture,
   });
 
-  if (isLoading) {
+  const { data: saucesData, isLoading: saucesLoading } = useQuery({
+    queryKey: ["sauces"],
+    queryFn: getSauces,
+  });
+
+  if (garnitureLoading || saucesLoading) {
     return (
       <Grid
         container
-        spacing={4}
         justifyContent="center"
         alignItems="center"
-        style={{ minHeight: "50vh" }}
+        sx={{ minHeight: "50vh" }}
       >
-        <Grid item>
-          <CircularProgress sx={{ color: "#FFB6C1" }} />
-        </Grid>
+        <CircularProgress sx={{ color: "#FFB6C1" }} />
       </Grid>
     );
-  } else if (error) {
-    return <span>Erreur...</span>;
   }
 
-  const rows = data?.map((garniture: GarnitureResponse, index: number) => ({
-    id: index + 1,
-    nom: garniture.nom,
-    disponible: garniture.disponible,
-  }));
+  const handleToggle = (nom: string) => {
+    setSelectedItems((prev) =>
+      prev.includes(nom) ? prev.filter((item) => item !== nom) : [...prev, nom],
+    );
+  };
 
   return (
-    <Paper sx={{ height: 400, width: "100%" }}>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        pageSizeOptions={[5, 10]}
-        checkboxSelection
-        sx={{ border: 0 }}
-        isRowSelectable={(params) => params.row.disponible}
-      />
+    <Paper sx={{ p: 3 }}>
+      <Typography
+        variant="h6"
+        gutterBottom
+        sx={{
+          fontFamily: "cursive",
+          fontWeight: "bold",
+        }}
+      >
+        Sélectionnez vos ingrédients et sauces
+      </Typography>
+
+      {/* Garnitures */}
+      <Typography
+        variant="subtitle1"
+        sx={{
+          mb: 1,
+          fontFamily: "cursive",
+          fontWeight: "bold",
+        }}
+      >
+        🥗 Garnitures:
+      </Typography>
+      <Grid container spacing={1}>
+        {garnitureData?.map((item: GarnitureResponse) => (
+          <Grid item key={item.nom}>
+            <Button
+              variant={
+                selectedItems.includes(item.nom) ? "contained" : "outlined"
+              }
+              sx={{
+                backgroundColor: selectedItems.includes(item.nom)
+                  ? "#7D7D7D"
+                  : "transparent",
+                color: selectedItems.includes(item.nom) ? "white" : "#7D7D7D",
+                borderColor: selectedItems.includes(item.nom)
+                  ? "#7D7D7D"
+                  : "#7D7D7D",
+                fontFamily: "cursive",
+              }}
+              onClick={() => handleToggle(item.nom)}
+              disabled={!item.disponible}
+            >
+              {item.nom}
+            </Button>
+          </Grid>
+        ))}
+      </Grid>
+
+      {/* Separador */}
+      <Divider sx={{ my: 2 }} />
+
+      {/* Sauces */}
+      <Typography
+        variant="subtitle1"
+        sx={{
+          mb: 1,
+          fontFamily: "cursive",
+          fontWeight: "bold",
+        }}
+      >
+        🥫 Sauces:
+      </Typography>
+      <Grid container spacing={1}>
+        {saucesData?.map((item: SaucesResponse) => (
+          <Grid item key={item.nom}>
+            <Button
+              variant={
+                selectedItems.includes(item.nom) ? "contained" : "outlined"
+              }
+              sx={{
+                backgroundColor: selectedItems.includes(item.nom)
+                  ? "#7D7D7D"
+                  : "transparent",
+                color: selectedItems.includes(item.nom) ? "white" : "#7D7D7D",
+                borderColor: selectedItems.includes(item.nom)
+                  ? "#7D7D7D"
+                  : "#7D7D7D",
+                fontFamily: "cursive",
+              }}
+              onClick={() => handleToggle(item.nom)}
+              disabled={!item.disponible}
+            >
+              {item.nom}
+            </Button>
+          </Grid>
+        ))}
+      </Grid>
     </Paper>
   );
 }

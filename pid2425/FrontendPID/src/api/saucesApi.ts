@@ -1,14 +1,14 @@
-import { GarnitureResponse } from "../types.ts";
+import { SaucesResponse } from "../types.ts";
 import axios from "axios";
 import keycloak from "../keycloak/keycloak.ts";
 
-export const getGarniture = async (): Promise<GarnitureResponse[]> => {
+export const getSauces = async (): Promise<SaucesResponse[]> => {
   if (!keycloak.token) {
     throw new Error("Not token");
   }
 
   const response = await axios.get(
-    `${import.meta.env.VITE_API_URL}/api/garniture?all`,
+    `${import.meta.env.VITE_API_URL}/api/sauces?all`,
     {
       headers: {
         Authorization: `Bearer ${keycloak.token}`,

@@ -16,3 +16,9 @@ export type UserResponse = {
   email: string;
   solde: number;
 };
+
+export type SaucesResponse = {
+  code: string;
+  nom: string;
+  disponible: boolean;
+};
