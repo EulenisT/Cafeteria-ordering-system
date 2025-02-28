@@ -4,22 +4,32 @@ function Footer() {
   return (
     <Box
       sx={{
-        backgroundColor: "rgba(255,213,0,0.43)",
-        padding: "10px",
+        backgroundColor: "#F2D4D6",
+        padding: "15px",
+        position: "fixed",
+        bottom: 0,
+        left: 0,
+        width: "100%",
         display: "flex",
         justifyContent: { xs: "center", md: "flex-end" },
         alignItems: "center",
-        marginTop: "25px",
+        zIndex: 1,
       }}
     >
       <Typography
-        variant="h6"
         sx={{
           textAlign: { xs: "center", md: "right" },
-          width: "100%",
-          marginRight: { md: "20px" },
           fontSize: { xs: "12px", md: "15px" },
-          fontFamily: "'Poppins', sans-serif",
+          fontFamily: "cursive, sans-serif",
+          color: "white",
+          fontWeight: "bold",
+          backgroundColor: "#E1B0AC",
+          borderRadius: "5px",
+          padding: "5px 15px",
+          boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+          marginLeft: "auto",
+          display: "inline-flex",
+          alignItems: "center",
         }}
       >
         ISFCE 2025

@@ -23,10 +23,13 @@ export default function HomePage() {
                 width: "100%",
                 padding: "30px",
                 fontSize: { xs: "14px", sm: "16px", md: "18px" },
-                backgroundColor: "#ecbf36",
+                backgroundColor: "#E1B0AC",
                 color: "white",
+                fontFamily: "cursive",
                 "&:hover": {
-                  backgroundColor: "#cca1d6",
+                  backgroundColor: "white",
+                  border: "2px solid #E1B0AC",
+                  color: "#E1B0AC",
                 },
               }}
             >
@@ -45,14 +48,17 @@ export default function HomePage() {
                 width: "100%",
                 padding: "30px",
                 fontSize: { xs: "14px", sm: "16px", md: "18px" },
-                backgroundColor: "#ecbf36",
+                backgroundColor: "#E1B0AC",
                 color: "white",
+                fontFamily: "cursive",
                 "&:hover": {
-                  backgroundColor: "#cca1d6",
+                  backgroundColor: "white",
+                  border: "2px solid #E1B0AC",
+                  color: "#E1B0AC",
                 },
               }}
             >
-              Personnaliser
+              Choisir
             </Button>
           </Link>
         </Grid>

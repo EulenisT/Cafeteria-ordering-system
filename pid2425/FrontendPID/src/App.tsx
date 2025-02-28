@@ -36,7 +36,7 @@ export default function App() {
           style={{ minHeight: "100vh" }}
         >
           <Grid item>
-            <CircularProgress sx={{ color: "#FFB6C1" }} />
+            <CircularProgress sx={{ color: "#E1B0AC" }} />
           </Grid>
         </Grid>
       }
@@ -51,6 +51,7 @@ export default function App() {
                   display: "flex",
                   flexDirection: "column",
                   minHeight: "100vh",
+                  backgroundColor: "#f8f8f8",
                 }}
               >
                 <NavBar />

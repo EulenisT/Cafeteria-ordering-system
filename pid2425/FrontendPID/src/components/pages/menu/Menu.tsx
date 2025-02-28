@@ -68,10 +68,19 @@ export default function Menu() {
                 alt={sandwich.nom}
               />
               <CardContent>
-                <Typography gutterBottom variant="h5" component="div">
+                <Typography
+                  gutterBottom
+                  variant="h5"
+                  component="div"
+                  sx={{ fontFamily: "cursive" }}
+                >
                   {sandwich.nom}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontFamily: "cursive" }}
+                >
                   {sandwich.disponible ? "Disponible" : "No disponible"} -{" "}
                   {sandwich.prix}€
                 </Typography>

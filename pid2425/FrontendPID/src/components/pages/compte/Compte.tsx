@@ -38,21 +38,51 @@ function Compte() {
       display="flex"
       justifyContent="center"
       alignItems="center"
-      height="100vh"
-      bgcolor="#f4f4f4"
+      marginTop="130px"
     >
-      <Card sx={{ maxWidth: 400, width: "100%", boxShadow: 3 }}>
+      <Card
+        sx={{
+          maxWidth: 400,
+          width: "100%",
+          boxShadow: 3,
+          backgroundColor: "#f8f8f8",
+        }}
+      >
         <CardContent>
-          <Typography variant="h5" gutterBottom textAlign="center">
+          <Typography
+            variant="h5"
+            textAlign="center"
+            sx={{
+              fontFamily: "Cursive, sans-serif",
+              fontWeight: "bold",
+            }}
+          >
             Mon profil
           </Typography>
-          <Typography variant="body1" marginBottom={2}>
+          <Typography
+            variant="body1"
+            marginBottom={2}
+            sx={{
+              fontFamily: "Cursive, sans-serif",
+            }}
+          >
             <strong>Nom d'utilisateur:</strong> {user.username}
           </Typography>
-          <Typography variant="body1" marginBottom={2}>
+          <Typography
+            variant="body1"
+            marginBottom={2}
+            sx={{
+              fontFamily: "Cursive, sans-serif",
+            }}
+          >
             <strong>Email:</strong> {user.email}
           </Typography>
-          <Typography variant="body1">
+          <Typography
+            variant="body1"
+            sx={{
+              fontFamily: "Cursive, sans-serif",
+            }}
+          >
             <strong>Saldo:</strong> {user.solde}€
           </Typography>
         </CardContent>
