@@ -6,7 +6,7 @@ import org.isfce.pid.model.Sandwiches;
 import org.springframework.data.jpa.repository.Query;
 
 public interface ISandwichDao  extends IArticleDao<Sandwiches> {
-	@Query("from TSANDWICHES s where s.disponible")
-	List<Sandwiches> sandwichDiponibles();
+	@Query("from TSANDWICHES s where s.disponible=:dispo")
+	List<Sandwiches> sandwichDiponibles(boolean dispo);
 
 }
