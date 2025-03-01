@@ -8,19 +8,19 @@ spring:
     banner-mode: off
   profiles:
     active:
-    - dev
+      - dev
 ---
 spring:
   config:
     activate:
       on-profile:
-      - dev
+        - dev
   datasource:
-    url: 'jdbc:h2:~/PID_DB/pidDB_2425'
+    url: "jdbc:h2:~/PID_DB/pidDB_2425"
     username: sa
     password:
   sql:
-#Permet d'exécuter le fichier data-h2.sql pour insérer des données
+    #Permet d'exécuter le fichier data-h2.sql pour insérer des données
     init:
       mode: always
       platform: h2
@@ -29,7 +29,7 @@ spring:
     hibernate:
       ddl-auto: update
     open-in-view: true
-#    database-platform: 'org.hibernate.dialect.H2Dialect'
+    #    database-platform: 'org.hibernate.dialect.H2Dialect'
     defer-datasource-initialization: true
   h2:
     console:
@@ -42,8 +42,6 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri:  http://localhost:8084/realms/CAFET
+          issuer-uri: http://localhost:8084/realms/CAFET
           jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
           public-key-location: classpath:certificats/keycloak-public-cert.pem
-
-

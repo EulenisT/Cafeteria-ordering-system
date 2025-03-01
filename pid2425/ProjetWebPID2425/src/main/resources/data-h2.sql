@@ -1,10 +1,3 @@
-MERGE into TGARNITURE(CODE,NOM,DISPONIBLE) values 
-('SA','Salade',true),
-('TO','Tomates',false),
-('OE','Oeufs',true),
-('MA','Maïs',true),
-('CA','Carottes',false);
-
 Merge into TARTICLE(CODE,NOM,DISPONIBLE) values
 ('BOUL','Boulette',true),
 ('POUL','Poulet Curry',true),
@@ -13,13 +6,25 @@ Merge into TARTICLE(CODE,NOM,DISPONIBLE) values
 ('MY','Mayonnaise',true),
 ('TT','Tomate',true),
 ('MT','Moutarde',true),
-('BZ','Brazil',false);
+('BZ','Brazil',false),
+('SA', 'Salade', true),
+('TO', 'Tomates', false),
+('OE', 'Oeufs', true),
+('MA', 'Maïs', true),
+('CA', 'Carottes', false);
 
 MERGE into TSANDWICHES(CODE,PRIX) values 
 ('BOUL',3.5),
 ('POUL',3.5),
 ('JBFR',3.2),
 ('FROM',3.0);
+
+MERGE INTO TGARNITURE(CODE) VALUES
+('SA'),
+('TO'),
+('OE'),
+('MA'),
+('CA');
 
 MERGE into TSAUCES(CODE) values
 ('MY'),

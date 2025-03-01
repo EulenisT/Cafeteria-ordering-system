@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.isfce.pid.dao.IGarnitureDao;
 import org.isfce.pid.model.Garniture;
-import org.isfce.pid.model.RGarniture;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -41,17 +40,17 @@ public class GarnitureController {
 	}
 
 	@GetMapping(params = "all")
-	ResponseEntity<List<RGarniture>> getListeGarniture() {
-		return new ResponseEntity<>(dao.listeGarniture(), HttpStatus.OK);
+	ResponseEntity<List<Garniture>> getListeGarniture() {
+		return new ResponseEntity<>(dao.findAll(), HttpStatus.OK);
 	}
 
 	@GetMapping(params = "dispo")
 	ResponseEntity<List<Garniture>> getListeGarnitureDispo(
 			@RequestParam(name = "dispo", defaultValue = "true", required = false) boolean dispo) {
-		return new ResponseEntity<>(dao.garnitureDiponibles2(dispo), HttpStatus.OK);
+		return new ResponseEntity<>(dao.garnitureDiponibles(dispo), HttpStatus.OK);
 	}
 
-	@PostMapping(path = "/add", consumes = "application/json") // précise le format du cours
+	@PostMapping(path = "/add", consumes = "application/json")
 	public ResponseEntity<Garniture> addGarniture(@Valid @RequestBody Garniture garniture) {
 		garniture = dao.save(garniture);
 		return ResponseEntity.ok(garniture);
