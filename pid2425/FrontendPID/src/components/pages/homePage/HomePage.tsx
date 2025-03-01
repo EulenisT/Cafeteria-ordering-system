@@ -33,7 +33,7 @@ export default function HomePage() {
                 },
               }}
             >
-              Menu
+                Choisir mon sandwich
             </Button>
           </Link>
         </Grid>
@@ -58,7 +58,7 @@ export default function HomePage() {
                 },
               }}
             >
-              Choisir
+                Créer mon sandwich
             </Button>
           </Link>
         </Grid>

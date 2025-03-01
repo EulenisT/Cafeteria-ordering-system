@@ -1,7 +1,7 @@
 export const menuButtons = [
-  { text: "Menu", path: "/menu" },
-  { text: "Compte", path: "/compte" },
-  { text: "Historique", path: "/historique" },
-  { text: "Personnaliser", path: "/personnaliser" },
+  { text: "Mon profil", path: "/compte" },
+  { text: "Sandwiches", path: "/menu" },
+  { text: "Créer mon sandwich", path: "/personnaliser" },
+  { text: "Derniers achats", path: "/historique" },
   { text: "Panier", path: "/panier" },
 ];
