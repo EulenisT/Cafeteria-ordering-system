@@ -164,7 +164,7 @@ const NavBar = () => {
                   <ListItemText
                     primary={item.text}
                     sx={{
-                        color: "#7D7D7D",
+                      color: "#7D7D7D",
                       fontFamily: "cursive, sans-serif",
                       fontWeight: "bold",
                     }}
@@ -177,7 +177,7 @@ const NavBar = () => {
             <ListItemButton onClick={() => toggleDrawer(false)}>
               <LogoutButton
                 sx={{
-                    color: "#7D7D7D",
+                  color: "#7D7D7D",
                   fontFamily: "cursive, sans-serif",
                   fontWeight: "bold",
                 }}
