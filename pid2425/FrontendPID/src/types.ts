@@ -9,6 +9,7 @@ export type GarnitureResponse = {
   code: string;
   nom: string;
   disponible: boolean;
+  prix: number;
 };
 
 export type UserResponse = {
@@ -21,4 +22,5 @@ export type SaucesResponse = {
   code: string;
   nom: string;
   disponible: boolean;
+  prix: number;
 };

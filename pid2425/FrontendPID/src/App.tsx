@@ -51,7 +51,7 @@ export default function App() {
                   display: "flex",
                   flexDirection: "column",
                   minHeight: "100vh",
-                  backgroundColor: "#f8f8f8",
+                  backgroundColor: "white",
                 }}
               >
                 <NavBar />
