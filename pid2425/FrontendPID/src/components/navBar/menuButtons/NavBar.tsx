@@ -17,8 +17,9 @@ import { Link } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useEffect, useState } from "react";
 import { menuButtons } from "./MenuButtons.ts";
-import LogoutButton from "./logout.tsx";
-import { getUserInfo } from "../../api/userApi.ts";
+import LogoutButton from "../logOut/logout.tsx";
+import { getUserInfo } from "../../../api/userApi.ts";
+import { Saldo } from "../saldo/Saldo.tsx";
 
 const NavBar = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
@@ -94,18 +95,7 @@ const NavBar = () => {
               marginLeft: "auto",
             }}
           >
-            <span
-              style={{
-                paddingRight: "8px",
-                fontFamily: "cursive",
-                fontWeight: "bold",
-              }}
-            >
-              Saldo:
-            </span>{" "}
-            <span style={{ color: "white", fontWeight: "bold" }}>
-              {userBalance !== null ? `${userBalance} €` : " "}
-            </span>
+            <Saldo userBalance={userBalance} />
           </Typography>
           <IconButton
             sx={{ display: { xs: "block", md: "none" }, ml: "auto" }}

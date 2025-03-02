@@ -1,23 +1,66 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+
+interface AllItem {
+  name: string;
+  price: number;
+}
+
+interface PersonalizedSandwich {
+  id: number;
+  sandwichName: string;
+  sandwichPrice: number;
+  garnitures: string[];
+  sauces: string[];
+}
+
+interface ExpenseState {
+  expenseList: AllItem[];
+  personalizedSandwiches: PersonalizedSandwich[];
+  personalizedCount: number;
+}
+
+const initialState: ExpenseState = {
+  expenseList: [],
+  personalizedSandwiches: [],
+  personalizedCount: 0,
+};
 
 export const expenseSlice = createSlice({
   name: "expenseSlice",
-  initialState: {
-    expenseList: [{ name: "", price: "" }],
-  },
+  initialState,
   reducers: {
-    addSandwich: (currentSlice, action) => {
-      currentSlice.expenseList.push(action.payload);
+    addSandwich: (state, action) => {
+      state.expenseList.push(action.payload);
     },
-    addGarniture: (currentSlice, action) => {
-      currentSlice.expenseList.push(action.payload);
-    },
-    addSauces: (currentSlice, action) => {
-      currentSlice.expenseList.push(action.payload);
+    // addSandwichChoice: (state, action: PayloadAction<AllItem>) => {
+    //   state.expenseList.push(action.payload);
+    // },
+    // addGarniture: (state, action: PayloadAction<AllItem>) => {
+    //   state.expenseList.push(action.payload);
+    // },
+    // addSauces: (state, action: PayloadAction<AllItem>) => {
+    //   state.expenseList.push(action.payload);
+    // },
+    addPersonalizedSandwich: (
+      state,
+      action: PayloadAction<Omit<PersonalizedSandwich, "id">>,
+    ) => {
+      state.personalizedCount += 1;
+      const newSandwich: PersonalizedSandwich = {
+        id: state.personalizedCount,
+        ...action.payload,
+      };
+      state.personalizedSandwiches.push(newSandwich);
     },
   },
 });
 
-const { addSandwich, addGarniture, addSauces } = expenseSlice.actions;
+export const {
+  addSandwich,
+  // addSandwichChoice,
+  // addGarniture,
+  // addSauces,
+  addPersonalizedSandwich,
+} = expenseSlice.actions;
 
-export { addSandwich, addGarniture, addSauces };
+export default expenseSlice.reducer;

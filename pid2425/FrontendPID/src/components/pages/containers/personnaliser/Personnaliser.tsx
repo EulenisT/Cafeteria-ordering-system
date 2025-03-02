@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getGarniture } from "../../../api/garnitureApi.ts";
-import { getSauces } from "../../../api/saucesApi.ts";
-import { GarnitureResponse, SaucesResponse } from "../../../types.ts";
+import { getGarniture } from "../../../../api/garnitureApi";
+import { getSauces } from "../../../../api/saucesApi";
+import { GarnitureResponse, SaucesResponse } from "../../../../types";
 import {
   List,
   ListItem,
@@ -13,21 +13,24 @@ import {
   Divider,
   IconButton,
   Box,
+  Button,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useDispatch } from "react-redux";
-import {
-  addGarniture,
-  addSauces,
-} from "../../../store/expense/expense-slice.ts";
+import { addPersonalizedSandwich } from "../../../../store/expense/expense-slice";
+import { SnackbarCloseReason } from "@mui/material";
+import AddSandwichNotification from "../../panier/snackbar/AddSandwichNotification.tsx";
 
 export default function Personnaliser() {
+  const [selectedGarnitures, setSelectedGarnitures] = useState<string[]>([]);
+  const [selectedSauces, setSelectedSauces] = useState<string[]>([]);
   const [hoveredGarnitureIndex, setHoveredGarnitureIndex] = useState<
     number | null
   >(null);
   const [hoveredSauceIndex, setHoveredSauceIndex] = useState<number | null>(
     null,
   );
+  const [notificationOpen, setNotificationOpen] = useState<boolean>(false);
 
   const { data: garnitureData, isLoading: garnitureLoading } = useQuery({
     queryKey: ["garniture"],
@@ -47,19 +50,55 @@ export default function Personnaliser() {
     );
   }
 
-  //aca REDUX
   const dispatch = useDispatch();
-  // Función que se ejecuta cuando se hace click en el icono o en la carta
+
+  // seleccionar/deseleccionar una garniture
   const handleAddClickGarniture = (garniture: GarnitureResponse) => {
-    const garnitureName = garniture.nom;
-    const garniturePrice = garniture.prix;
-    dispatch(addGarniture({ garnitureName, garniturePrice }));
+    setSelectedGarnitures((prevSelected) =>
+      prevSelected.includes(garniture.nom)
+        ? prevSelected.filter((name) => name !== garniture.nom)
+        : [...prevSelected, garniture.nom],
+    );
   };
-  // Función que se ejecuta cuando se hace click en el icono o en la carta
+
+  // seleccionar/deseleccionar una sauce
   const handleAddClickSauces = (sauces: SaucesResponse) => {
-    const saucesName = sauces.nom;
-    const saucesPrice = sauces.prix;
-    dispatch(addSauces({ saucesName, saucesPrice }));
+    setSelectedSauces((prevSelected) =>
+      prevSelected.includes(sauces.nom)
+        ? prevSelected.filter((name) => name !== sauces.nom)
+        : [...prevSelected, sauces.nom],
+    );
+  };
+
+  // Precio del pan (esto pienso puedes eliminarlo, porque ya esta en panier)
+  const panPrice = 1.0;
+
+  // Función que agrupa los ingredientes en un objeto sandwich y lo envía al panier
+  const handleAddSandwich = () => {
+    const sandwich = {
+      sandwichName: "Pan1", // Esto tienes que editarlo o eliminarlo
+      sandwichPrice: panPrice,
+      garnitures: selectedGarnitures,
+      sauces: selectedSauces,
+    };
+
+    // Despachamos la acción para agregar el sandwich personalizado
+    dispatch(addPersonalizedSandwich(sandwich));
+
+    // Limpiamos las selecciones después de enviar el sandwich
+    setSelectedGarnitures([]);
+    setSelectedSauces([]);
+
+    // Activa la notificación
+    setNotificationOpen(true);
+  };
+
+  const handleNotificationClose = (
+    _event: React.SyntheticEvent | Event,
+    reason: SnackbarCloseReason,
+  ): void => {
+    if (reason === "clickaway") return;
+    setNotificationOpen(false);
   };
 
   return (
@@ -84,9 +123,12 @@ export default function Personnaliser() {
                   alignItems="flex-start"
                   style={{
                     position: "relative",
-                    backgroundColor:
-                      hoveredGarnitureIndex === index &&
-                      itemGarniture.disponible
+                    backgroundColor: selectedGarnitures.includes(
+                      itemGarniture.nom,
+                    )
+                      ? "#F2D4D6"
+                      : hoveredGarnitureIndex === index &&
+                          itemGarniture.disponible
                         ? "#f9e1e6"
                         : "transparent",
                     transition: "background-color 0.3s ease",
@@ -98,7 +140,10 @@ export default function Personnaliser() {
                   onMouseLeave={() =>
                     itemGarniture.disponible && setHoveredGarnitureIndex(null)
                   }
-                  onClick={() => handleAddClickGarniture(itemGarniture)}
+                  onClick={() =>
+                    itemGarniture.disponible &&
+                    handleAddClickGarniture(itemGarniture)
+                  }
                 >
                   <ListItemAvatar>
                     <Avatar
@@ -112,10 +157,13 @@ export default function Personnaliser() {
                         {itemGarniture.nom} - ${itemGarniture.prix.toFixed(2)}
                       </Typography>
                     }
-                    secondary={`Disponibilité : ${itemGarniture.disponible ? "Disponible" : "Non disponible"}`}
+                    secondary={`Disponibilidad: ${itemGarniture.disponible ? "Disponible" : "Non disponible"}`}
                   />
                   <IconButton
-                    onClick={() => handleAddClickGarniture(itemGarniture)}
+                    onClick={() =>
+                      itemGarniture.disponible &&
+                      handleAddClickGarniture(itemGarniture)
+                    }
                     sx={{
                       position: "absolute",
                       top: 8,
@@ -148,7 +196,7 @@ export default function Personnaliser() {
       >
         Sauces:
       </Typography>
-      <Box sx={{ paddingBottom: "70px" }}>
+      <Box sx={{ paddingBottom: "100px" }}>
         <List>
           {saucesData?.map((itemSauces: SaucesResponse, index: number) => (
             <React.Fragment key={itemSauces.nom}>
@@ -156,8 +204,9 @@ export default function Personnaliser() {
                 alignItems="flex-start"
                 sx={{
                   position: "relative",
-                  backgroundColor:
-                    hoveredSauceIndex === index && itemSauces.disponible
+                  backgroundColor: selectedSauces.includes(itemSauces.nom)
+                    ? "#F2D4D6"
+                    : hoveredSauceIndex === index && itemSauces.disponible
                       ? "#f9e1e6"
                       : "transparent",
                   transition: "background-color 0.3s ease",
@@ -169,7 +218,9 @@ export default function Personnaliser() {
                 onMouseLeave={() =>
                   itemSauces.disponible && setHoveredSauceIndex(null)
                 }
-                onClick={() => handleAddClickSauces(itemSauces)}
+                onClick={() =>
+                  itemSauces.disponible && handleAddClickSauces(itemSauces)
+                }
               >
                 <ListItemAvatar>
                   <Avatar
@@ -183,10 +234,12 @@ export default function Personnaliser() {
                       {itemSauces.nom} - ${itemSauces.prix.toFixed(2)}
                     </Typography>
                   }
-                  secondary={`Disponibilité: ${itemSauces.disponible ? "Disponible" : "Non disponible"}`}
+                  secondary={`Disponibilidad: ${itemSauces.disponible ? "Disponible" : "Non disponible"}`}
                 />
                 <IconButton
-                  onClick={() => handleAddClickSauces(itemSauces)}
+                  onClick={() =>
+                    itemSauces.disponible && handleAddClickSauces(itemSauces)
+                  }
                   sx={{
                     position: "absolute",
                     top: 8,
@@ -205,7 +258,34 @@ export default function Personnaliser() {
             </React.Fragment>
           ))}
         </List>
+        <Button
+          variant="outlined"
+          sx={{
+            mt: 1,
+            color: "grey",
+            borderColor: "#E1B0AC",
+            "&:hover": {
+              backgroundColor: "#F2D4D6",
+              borderColor: "#E1B0AC",
+            },
+            "&:active": {
+              backgroundColor: "#F2D4D6",
+            },
+            "&.Mui-focusVisible": {
+              backgroundColor: "#F2D4D6",
+            },
+          }}
+          onClick={handleAddSandwich}
+        >
+          Ajouter sandwich au panier
+        </Button>
       </Box>
+
+      {/* Notificación */}
+      <AddSandwichNotification
+        open={notificationOpen}
+        onClose={handleNotificationClose}
+      />
     </Box>
   );
 }
