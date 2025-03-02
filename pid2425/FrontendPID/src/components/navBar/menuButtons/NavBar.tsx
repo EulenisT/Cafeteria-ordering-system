@@ -16,14 +16,17 @@ import {
 import { Link } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { menuButtons } from "./MenuButtons.ts";
 import LogoutButton from "../logOut/logout.tsx";
 import { getUserInfo } from "../../../api/userApi.ts";
-import { Saldo } from "../saldo/Saldo.tsx";
+import { RootState } from "../../../store";
+import { setSaldoUser } from "../../../store/expense/expense-slice.ts";
 
 const NavBar = () => {
+  const dispatch = useDispatch();
+  const saldoUser = useSelector((state: RootState) => state.EXPENSE.saldoUser);
   const [openDrawer, setOpenDrawer] = useState(false);
-  const [userBalance, setUserBalance] = useState<number | null>(null);
   const toggleDrawer = (open: boolean) => setOpenDrawer(open);
   const isLargeScreen = useMediaQuery("(min-width:1024px)");
 
@@ -37,22 +40,17 @@ const NavBar = () => {
     const fetchUserInfo = async () => {
       try {
         const userData = await getUserInfo();
-        setUserBalance(userData.solde);
+        dispatch(setSaldoUser(userData.solde)); // Actualiza Redux con el saldo real
       } catch (error) {
-        console.error("Error...", error);
+        console.error("Error obteniendo saldo del usuario:", error);
       }
     };
     fetchUserInfo();
-  }, []);
+  }, [dispatch]);
 
   return (
     <Box sx={{ width: "100%", marginBottom: "35px" }}>
-      <Box
-        sx={{
-          padding: "70px 0",
-          marginTop: "0",
-        }}
-      ></Box>
+      <Box sx={{ padding: "70px 0", marginTop: "0" }}></Box>
       <AppBar
         position="fixed"
         sx={{
@@ -95,7 +93,7 @@ const NavBar = () => {
               marginLeft: "auto",
             }}
           >
-            <Saldo userBalance={userBalance} />
+            {saldoUser} €
           </Typography>
           <IconButton
             sx={{ display: { xs: "block", md: "none" }, ml: "auto" }}

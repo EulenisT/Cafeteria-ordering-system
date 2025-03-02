@@ -19,7 +19,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { useDispatch } from "react-redux";
 import { addPersonalizedSandwich } from "../../../../store/expense/expense-slice";
 import { SnackbarCloseReason } from "@mui/material";
-import AddSandwichNotification from "../../panier/snackbar/AddSandwichNotification.tsx";
+import AddSandwichNotification from "../../panier/snackbar_creerSandwich/AddSandwichNotification.tsx";
 
 export default function Personnaliser() {
   const [selectedGarnitures, setSelectedGarnitures] = useState<string[]>([]);

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Box,
   List,
@@ -5,23 +6,31 @@ import {
   ListItemText,
   Typography,
   Divider,
+  Button,
 } from "@mui/material";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../../../store";
 import { useQuery } from "@tanstack/react-query";
-import { getSauces } from "../../../../api/saucesApi.ts";
-import { getGarniture } from "../../../../api/garnitureApi.ts";
+import { getSauces } from "../../../../api/saucesApi";
+import { getGarniture } from "../../../../api/garnitureApi";
+import {
+  payCart,
+  removeFromCart,
+} from "../../../../store/expense/expense-slice";
+import PaymentSuccessSnackbar from "../snackbar_panier/PaymentSuccessSnackbar/PaymentSuccessSnackbar.tsx";
+import PaymentErrorSnackbar from "../snackbar_panier/PaymentErrorSnackbar/PaymentErrorSnackbar.tsx";
 
 export function Panier() {
-  // Obtención de sandwiches preparados y personalizados desde el store
+  const dispatch = useDispatch();
+
   const preparedSandwiches = useSelector(
     (store: RootState) => store.EXPENSE.expenseList,
   );
   const personalizedSandwiches = useSelector(
     (store: RootState) => store.EXPENSE.personalizedSandwiches,
   );
+  const saldoUser = useSelector((store: RootState) => store.EXPENSE.saldoUser);
 
-  // Consultas para obtener datos de ingredientes
   const { data: garnitureData } = useQuery({
     queryKey: ["garniture"],
     queryFn: getGarniture,
@@ -31,14 +40,15 @@ export function Panier() {
     queryFn: getSauces,
   });
 
-  // Precio fijo del pan
+  const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
+  const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
+
   const panPrice = 1.0;
 
-  // Función para calcular el precio real de un sandwich personalizado
   const computePersonalizedPrice = (item: {
     garnitures: string[];
     sauces: string[];
-  }) => {
+  }): number => {
     let total = panPrice;
     if (garnitureData) {
       item.garnitures.forEach((garnitureName) => {
@@ -55,27 +65,31 @@ export function Panier() {
     return total;
   };
 
-  // Calcula el total de los sandwiches preparados usando el precio almacenado
   const totalPrepared = preparedSandwiches.reduce(
     (acc, item) => acc + item.price,
     0,
   );
-  // Calcula el total de los sandwiches personalizados usando el precio recalculado
   const totalPersonalized = personalizedSandwiches.reduce(
     (acc, item) => acc + computePersonalizedPrice(item),
     0,
   );
   const total = totalPrepared + totalPersonalized;
 
+  const handlePayment = () => {
+    if (saldoUser < total) {
+      setErrorSnackbarOpen(true);
+      return;
+    }
+    dispatch(payCart());
+    setSuccessSnackbarOpen(true);
+  };
+
+  const handleRemoveItem = (id?: number, name?: string) => {
+    dispatch(removeFromCart({ id, name }));
+  };
+
   return (
-    <Box
-      sx={{
-        width: "100%",
-        mt: 4,
-        px: { xs: 2, md: 4 },
-        mb: "80px",
-      }}
-    >
+    <Box sx={{ width: "100%", mt: 4, px: { xs: 2, md: 4 }, mb: "80px" }}>
       <Typography
         variant="h4"
         sx={{ mb: 2, fontWeight: "bold", textAlign: "center" }}
@@ -83,11 +97,10 @@ export function Panier() {
         Panier
       </Typography>
       <List>
-        {/* Sandwiches preparados */}
         {preparedSandwiches.length > 0 && (
           <>
             <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
-              Sandwiches preparados:
+              Sandwichs préparés:
             </Typography>
             {preparedSandwiches.map((item, index) => (
               <ListItem
@@ -99,17 +112,28 @@ export function Panier() {
                   primary={item.name || "Nombre no disponible"}
                   secondary={`${item.price.toFixed(2)} €`}
                 />
+                <Button
+                  variant="outlined"
+                  sx={{
+                    borderColor: "#E1B0AC",
+                    color: "#E1B0AC",
+                    backgroundColor: "#FCE4EC",
+                    "&:hover": { backgroundColor: "#E1B0AC", color: "white" },
+                  }}
+                  onClick={() => handleRemoveItem(undefined, item.name)}
+                >
+                  Retirer du panier
+                </Button>
               </ListItem>
             ))}
             <Divider sx={{ my: 2 }} />
           </>
         )}
 
-        {/* Sandwiches personalizados */}
         {personalizedSandwiches.length > 0 && (
           <>
             <Typography variant="h6" sx={{ mt: 2, fontWeight: "bold", mb: 1 }}>
-              Sandwiches personalizados:
+              Sandwichs personnalisés:
             </Typography>
             {personalizedSandwiches.map((item) => (
               <ListItem
@@ -117,8 +141,8 @@ export function Panier() {
                 divider
                 sx={{
                   display: "flex",
-                  flexDirection: "column",
-                  alignItems: "flex-start",
+                  justifyContent: "space-between",
+                  alignItems: "center",
                   py: 2,
                 }}
               >
@@ -126,40 +150,48 @@ export function Panier() {
                   primary={`ID: ${item.id} - ${item.sandwichName || "Nombre no disponible"}`}
                   secondary={
                     <>
-                      <Typography variant="body2" component="span">
+                      <Typography variant="body2">
                         Precio base (pan): {panPrice.toFixed(2)} €
                       </Typography>
-                      <br />
-                      <Typography variant="body2" component="span">
+                      <Typography variant="body2">
                         Garnitures: {item.garnitures.join(", ")}
                       </Typography>
-                      <br />
-                      <Typography variant="body2" component="span">
+                      <Typography variant="body2">
                         Sauces: {item.sauces.join(", ")}
                       </Typography>
-                      <br />
-                      <Typography variant="body2" component="span">
-                        Total personalizado:{" "}
+                      <Typography variant="body2">
+                        Total personnalisé:{" "}
                         {computePersonalizedPrice(item).toFixed(2)} €
                       </Typography>
                     </>
                   }
                 />
+                <Button
+                  variant="outlined"
+                  sx={{
+                    borderColor: "#E1B0AC",
+                    color: "#E1B0AC",
+                    backgroundColor: "#FCE4EC",
+                    "&:hover": { backgroundColor: "#E1B0AC", color: "white" },
+                  }}
+                  onClick={() => handleRemoveItem(item.id)}
+                >
+                  Retirer du panier
+                </Button>
               </ListItem>
             ))}
             <Divider sx={{ my: 2 }} />
           </>
         )}
 
-        {/* Mensaje cuando no hay sandwiches */}
         {preparedSandwiches.length === 0 &&
           personalizedSandwiches.length === 0 && (
             <Typography variant="body2" color="textSecondary">
-              Aucun achât disponible.
+              Aucun achat disponible.
             </Typography>
           )}
       </List>
-      {/* Total a pagar */}
+
       <Box
         sx={{
           mt: 3,
@@ -172,6 +204,30 @@ export function Panier() {
           Total à payer: {total.toFixed(2)} €
         </Typography>
       </Box>
+
+      <Button
+        variant="contained"
+        sx={{
+          mt: 1,
+          borderColor: "#E1B0AC",
+          color: "white",
+          backgroundColor: "#E1B0AC",
+        }}
+        onClick={handlePayment}
+        disabled={total === 0}
+      >
+        Payer
+      </Button>
+
+      <PaymentSuccessSnackbar
+        open={successSnackbarOpen}
+        onClose={() => setSuccessSnackbarOpen(false)}
+      />
+
+      <PaymentErrorSnackbar
+        open={errorSnackbarOpen}
+        onClose={() => setErrorSnackbarOpen(false)}
+      />
     </Box>
   );
 }
