@@ -83,7 +83,7 @@ function Compte() {
               fontFamily: "Cursive, sans-serif",
             }}
           >
-            <strong>Saldo:</strong> {user.solde}€
+            <strong>Saldo:</strong> {user.solde.toFixed(2)}€
           </Typography>
         </CardContent>
       </Card>

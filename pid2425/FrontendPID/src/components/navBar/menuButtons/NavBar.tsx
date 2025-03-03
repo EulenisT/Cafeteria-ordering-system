@@ -20,7 +20,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { menuButtons } from "./MenuButtons.ts";
 import LogoutButton from "../logOut/logout.tsx";
 import { getUserInfo } from "../../../api/userApi.ts";
-import { RootState } from "../../../store";
+import { RootState } from "../../../store/store.ts";
 import { setSaldoUser } from "../../../store/expense/expense-slice.ts";
 
 const NavBar = () => {
@@ -93,7 +93,7 @@ const NavBar = () => {
               marginLeft: "auto",
             }}
           >
-            {saldoUser} €
+            {saldoUser.toFixed(2)} €
           </Typography>
           <IconButton
             sx={{ display: { xs: "block", md: "none" }, ml: "auto" }}

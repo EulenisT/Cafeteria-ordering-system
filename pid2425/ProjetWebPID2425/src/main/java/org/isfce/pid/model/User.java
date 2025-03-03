@@ -39,4 +39,11 @@ public class User {
 		solde = solde + montant;
 		return solde;
 	}
+
+	public Double debiter(Double montant) {
+		assert montant >= 0 : "Le montant doit être positif";
+		this.solde -= montant;
+		return this.solde;
+	}
+
 }

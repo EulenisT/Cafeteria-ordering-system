@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   List,
@@ -9,16 +9,20 @@ import {
   Button,
 } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../../../../store";
 import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import { getSauces } from "../../../../api/saucesApi";
 import { getGarniture } from "../../../../api/garnitureApi";
+import { getUserInfo } from "../../../../api/userApi.ts";
+import keycloak from "../../../../keycloak/keycloak.ts";
 import {
-  payCart,
+  clearCart,
   removeFromCart,
+  setSaldoUser,
 } from "../../../../store/expense/expense-slice";
 import PaymentSuccessSnackbar from "../snackbar_panier/PaymentSuccessSnackbar/PaymentSuccessSnackbar.tsx";
 import PaymentErrorSnackbar from "../snackbar_panier/PaymentErrorSnackbar/PaymentErrorSnackbar.tsx";
+import { RootState } from "../../../../store/store.ts";
 
 export function Panier() {
   const dispatch = useDispatch();
@@ -30,6 +34,30 @@ export function Panier() {
     (store: RootState) => store.EXPENSE.personalizedSandwiches,
   );
   const saldoUser = useSelector((store: RootState) => store.EXPENSE.saldoUser);
+
+  const {
+    data: userProfile,
+    isLoading,
+    isSuccess,
+  } = useQuery({
+    queryKey: ["userProfile"],
+    queryFn: getUserInfo,
+    initialData: {
+      username: keycloak.tokenParsed?.preferred_username || "",
+      email: "",
+      solde: saldoUser,
+    },
+    staleTime: 60000,
+  });
+
+  const username =
+    userProfile?.username || keycloak.tokenParsed?.preferred_username || "";
+
+  useEffect(() => {
+    if (isSuccess && userProfile) {
+      dispatch(setSaldoUser(userProfile.solde));
+    }
+  }, [isSuccess, userProfile, dispatch]);
 
   const { data: garnitureData } = useQuery({
     queryKey: ["garniture"],
@@ -75,13 +103,35 @@ export function Panier() {
   );
   const total = totalPrepared + totalPersonalized;
 
-  const handlePayment = () => {
-    if (saldoUser < total) {
+  const handlePayment = async () => {
+    // Redondeo para evitar problemas de precisión
+    const roundedSaldo = Math.round(saldoUser * 100) / 100;
+    const roundedTotal = Math.round(total * 100) / 100;
+
+    if (roundedSaldo < roundedTotal) {
       setErrorSnackbarOpen(true);
       return;
     }
-    dispatch(payCart());
-    setSuccessSnackbarOpen(true);
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/user/updatesolde`,
+        null,
+        {
+          params: { username, montant: total },
+          headers: {
+            Authorization: `Bearer ${keycloak.token}`,
+          },
+        },
+      );
+      // Actualizamos el saldo con el valor retornado por el backend
+      dispatch(setSaldoUser(response.data));
+      // Limpiamos el carrito
+      dispatch(clearCart());
+      setSuccessSnackbarOpen(true);
+    } catch (error) {
+      console.error("Error al actualizar el saldo en la base de datos", error);
+      setErrorSnackbarOpen(true);
+    }
   };
 
   const handleRemoveItem = (id?: number, name?: string) => {
@@ -96,6 +146,15 @@ export function Panier() {
       >
         Panier
       </Typography>
+
+      <Box sx={{ textAlign: "center", mb: 2 }}>
+        {isLoading ? (
+          <Typography variant="h6">Cargando saldo...</Typography>
+        ) : (
+          <Typography variant="h6">Saldo: {saldoUser.toFixed(2)} €</Typography>
+        )}
+      </Box>
+
       <List>
         {preparedSandwiches.length > 0 && (
           <>
@@ -160,7 +219,7 @@ export function Panier() {
                         Sauces: {item.sauces.join(", ")}
                       </Typography>
                       <Typography variant="body2">
-                        Total personnalisé:{" "}
+                        Total personalizado:{" "}
                         {computePersonalizedPrice(item).toFixed(2)} €
                       </Typography>
                     </>

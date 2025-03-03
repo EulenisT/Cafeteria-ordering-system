@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction} from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface AllItem {
   name: string;
@@ -34,11 +34,9 @@ export const expenseSlice = createSlice({
     setSaldoUser: (state, action: PayloadAction<number>) => {
       state.saldoUser = action.payload;
     },
-
     addSandwich: (state, action: PayloadAction<AllItem>) => {
       state.expenseList.push(action.payload);
     },
-
     addPersonalizedSandwich: (
       state,
       action: PayloadAction<Omit<PersonalizedSandwich, "id">>,
@@ -50,25 +48,12 @@ export const expenseSlice = createSlice({
       };
       state.personalizedSandwiches.push(newSandwich);
     },
-
-    payCart: (state) => {
-      const totalGasto =
-        state.expenseList.reduce((sum, item) => sum + item.price, 0) +
-        state.personalizedSandwiches.reduce(
-          (sum, item) => sum + item.sandwichPrice,
-          0,
-        );
-
-      if (state.saldoUser >= totalGasto) {
-        state.saldoUser -= totalGasto;
-        state.expenseList = [];
-        state.personalizedSandwiches = [];
-        state.personalizedCount = 0;
-      } else {
-        console.warn("Solde insuffisant pour payer");
-      }
+    // Acción para limpiar el carrito
+    clearCart: (state) => {
+      state.expenseList = [];
+      state.personalizedSandwiches = [];
+      state.personalizedCount = 0;
     },
-
     removeFromCart: (
       state,
       action: PayloadAction<{ id?: number; name?: string }>,
@@ -91,7 +76,7 @@ export const {
   addSandwich,
   addPersonalizedSandwich,
   setSaldoUser,
-  payCart,
+  clearCart,
   removeFromCart,
 } = expenseSlice.actions;
 

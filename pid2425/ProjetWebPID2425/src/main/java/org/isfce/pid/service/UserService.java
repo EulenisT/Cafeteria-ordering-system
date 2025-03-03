@@ -31,6 +31,21 @@ public class UserService {
 
 	}
 
+	public Double debiterUser(String username, Double montant) {
+		var oUser = daoUser.findById(username);
+
+		User user = oUser.orElseThrow(() -> new NotExistException(username));
+
+		if (user.getSolde() >= montant) {
+			Double solde = user.debiter(montant);
+			daoUser.save(user);
+			return solde;
+		} else {
+			throw new IllegalArgumentException("Fonds insuffisants pour l'utilisateur: " + username);
+		}
+	}
+
+
 	public List<UserDto> getAllUserDto() {
 		return daoUser.getAllUserDto();
 	}

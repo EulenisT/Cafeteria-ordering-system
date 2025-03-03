@@ -68,4 +68,13 @@ public class UserController {
 		return ResponseEntity.ok(userDto);
 	}
 
+	@PostMapping(path = "/updatesolde")
+	public ResponseEntity<Double> updateSoldeDes(@RequestParam("username") String username,
+											  @RequestParam("montant") Double montant) {
+		log.info("Débiter: " + username + " montant: " + montant);
+		Double solde = userService.debiterUser(username, montant);
+		return ResponseEntity.ok(solde);
+	}
+
+
 }
