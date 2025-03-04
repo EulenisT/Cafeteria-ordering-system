@@ -1,39 +1,54 @@
-package
-org.isfce.pid.model;
+package org.isfce.pid.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import lombok.AllArgsConstructor;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "TLIGNE_CMD")
 public class LigneCmd {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer num;
-	@ManyToOne()
-	@JoinColumn(name = "FKCommande", nullable = false)
+
+	@ManyToOne
+	@JoinColumn(name = "FK_COMMANDE", nullable = false)
 	private Commande cmd;
-	private String article;
+
+	@Column(name = "TYPE", nullable = false)
+	private String type;
+
+	@Column(name = "NOM_SANDWICH")
+	private String nomSandwich;
+
+	@Column(name = "DESCRIPTION")
+	private String description;
+
+	@Column(name = "PRIX", nullable = false)
+	private Double prix;
+
+	@Column(name = "QT", nullable = false)
 	private int qt;
-	
-	public LigneCmd(Commande cmd, String article, int qt) {
-		super();
+
+	public LigneCmd(Commande cmd, String nomSandwich, String type, String description, Double prix, int qt) {
 		this.cmd = cmd;
-		this.article = article;
+		this.nomSandwich = nomSandwich;
+		this.type = type;
+		this.description = description;
+		this.prix = prix;
 		this.qt = qt;
 	}
-	
-	
+
+	@PrePersist
+	public void prePersist() {
+		if (this.nomSandwich == null) {
+			this.nomSandwich = "Sandwich personnalisé";
+		}
+
+	}
 }

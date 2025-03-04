@@ -4,19 +4,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Getter
 @Setter
@@ -24,19 +13,22 @@ import lombok.ToString;
 @EqualsAndHashCode(exclude = {"lignes"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@Table(name = "TCOMMANDE")
 public class Commande {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "CODE")
 	private Integer num;
 
+	@Column(name = "DATE", nullable = false)
 	private LocalDate date;
 
-	@OneToMany(cascade = CascadeType.PERSIST, mappedBy = "cmd",fetch = FetchType.EAGER )
+	@OneToMany(cascade = CascadeType.PERSIST, mappedBy = "cmd", fetch = FetchType.EAGER)
 	private List<LigneCmd> lignes = new ArrayList<>();
 
 	public Commande(LocalDate date) {
 		super();
 		this.date = date;
 	}
-	
 }
