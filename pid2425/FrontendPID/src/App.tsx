@@ -7,7 +7,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import NavBar from "./components/navBar/menuButtons/NavBar.tsx";
 import Footer from "./components/footer/Footer.tsx";
 import HomePage from "./components/pages/homePage/HomePage.tsx";
-import Menu from "./components/pages/containers/menu/garnitures-sauces/Menu.tsx";
+import Menu from "./components/pages/containers/menu/Menu.tsx";
 import Compte from "./components/pages/compte/Compte.tsx";
 import Personnaliser from "./components/pages/containers/personnaliser/Personnaliser.tsx";
 import { Panier } from "./components/pages/panier/panier/Panier.tsx";

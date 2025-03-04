@@ -37,6 +37,14 @@ export const expenseSlice = createSlice({
     addSandwich: (state, action: PayloadAction<AllItem>) => {
       state.expenseList.push(action.payload);
     },
+    removeSandwich: (state, action: PayloadAction<AllItem>) => {
+      const index = state.expenseList.findIndex(
+        (item) => item.name === action.payload.name,
+      );
+      if (index !== -1) {
+        state.expenseList.splice(index, 1);
+      }
+    },
     addPersonalizedSandwich: (
       state,
       action: PayloadAction<Omit<PersonalizedSandwich, "id">>,
@@ -48,7 +56,6 @@ export const expenseSlice = createSlice({
       };
       state.personalizedSandwiches.push(newSandwich);
     },
-    // Acción para limpiar el carrito
     clearCart: (state) => {
       state.expenseList = [];
       state.personalizedSandwiches = [];
@@ -74,6 +81,7 @@ export const expenseSlice = createSlice({
 
 export const {
   addSandwich,
+  removeSandwich,
   addPersonalizedSandwich,
   setSaldoUser,
   clearCart,

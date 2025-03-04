@@ -7,15 +7,18 @@ import Grid from "@mui/material/Grid";
 import AddIcon from "@mui/icons-material/Add";
 import { IconButton } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import { getSandwiches } from "../../../../../api/sandwichsApi.ts";
-import { SandwichesResponse } from "../../../../../types.ts";
+import { getSandwiches } from "../../../../api/sandwichsApi.ts";
+import { SandwichesResponse } from "../../../../types.ts";
 
-import pouletCurry from "../../../../../assets/images/pouletCurry.png";
-import boulette from "../../../../../assets/images/boulette.png";
-import fromage from "../../../../../assets/images/fromage.png";
-import jambonFromage from "../../../../../assets/images/jambonFromage.png";
+import pouletCurry from "../../../../assets/images/pouletCurry.png";
+import boulette from "../../../../assets/images/boulette.png";
+import fromage from "../../../../assets/images/fromage.png";
+import jambonFromage from "../../../../assets/images/jambonFromage.png";
 import CircularProgress from "@mui/material/CircularProgress";
-import { addSandwich } from "../../../../../store/expense/expense-slice.ts";
+import {
+  addSandwich,
+  removeSandwich,
+} from "../../../../store/expense/expense-slice.ts";
 import { useDispatch } from "react-redux";
 import { useState } from "react";
 
@@ -55,20 +58,18 @@ export default function Menu() {
 
   //aca REDUX
   const dispatch = useDispatch();
-  // Función que se ejecuta cuando se hace click en el icono o en la carta
-  const handleAddClick = (sandwich: SandwichesResponse) => {
-    dispatch(addSandwich({ name: sandwich.nom, price: sandwich.prix }));
 
-    // Si el sandwich ya está seleccionado, lo quitamos; si no, lo agregamos
-    setSelectedSandwiches((prevSelected) => {
-      if (prevSelected.includes(sandwich.code)) {
-        // Si el sandwich ya está seleccionado, lo eliminamos
-        return prevSelected.filter((code) => code !== sandwich.code);
-      } else {
-        // Si no está seleccionado, lo agregamos
-        return [...prevSelected, sandwich.code];
-      }
-    });
+  const handleAddClick = (sandwich: SandwichesResponse) => {
+    if (selectedSandwiches.includes(sandwich.code)) {
+      dispatch(removeSandwich({ name: sandwich.nom, price: sandwich.prix }));
+    } else {
+      dispatch(addSandwich({ name: sandwich.nom, price: sandwich.prix }));
+    }
+    setSelectedSandwiches((prevSelected) =>
+      prevSelected.includes(sandwich.code)
+        ? prevSelected.filter((code) => code !== sandwich.code)
+        : [...prevSelected, sandwich.code],
+    );
   };
 
   return (
