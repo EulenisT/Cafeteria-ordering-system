@@ -2,14 +2,9 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import { Button } from "@mui/material";
 import { Link } from "react-router-dom";
-// import {Historique} from "./historique/Historique.tsx";
-// import {useSelector} from "react-redux";
-// import {RootState} from "../../../store";
+import { Historique } from "./historique/Historique.tsx";
 
 export default function HomePage() {
-  // const expenseList = useSelector((store : RootState) => store.EXPENSE.expenseList);
-  // console.log("Aca", expenseList);
-
   return (
     <>
       <Box
@@ -71,7 +66,7 @@ export default function HomePage() {
           </Grid>
         </Grid>
       </Box>
-      {/*<Historique listItems={expenseList}/>*/}
+      <Historique />
     </>
   );
 }

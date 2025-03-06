@@ -71,13 +71,11 @@ export function Panier() {
   const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
   const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
 
-  const panPrice = 1.0;
-
   const computePersonalizedPrice = (item: {
     garnitures: string[];
     sauces: string[];
   }): number => {
-    let total = panPrice;
+    let total = 0;
     if (garnitureData) {
       item.garnitures.forEach((garnitureName) => {
         const found = garnitureData.find((g: any) => g.nom === garnitureName);
@@ -93,12 +91,14 @@ export function Panier() {
     return total;
   };
 
+  // Total para sandwiches preparados
   const totalPrepared = preparedSandwiches.reduce(
     (acc, item) => acc + item.price,
     0,
   );
+  // Para los personalizados, se suma el precio base (item.sandwichPrice) y el extra calculado
   const totalPersonalized = personalizedSandwiches.reduce(
-    (acc, item) => acc + computePersonalizedPrice(item),
+    (acc, item) => acc + (item.sandwichPrice + computePersonalizedPrice(item)),
     0,
   );
   const total = totalPrepared + totalPersonalized;
@@ -112,7 +112,41 @@ export function Panier() {
       setErrorSnackbarOpen(true);
       return;
     }
+
     try {
+      // Construir el payload combinando los sandwiches preparados y personalizados
+      const commandePayload = {
+        lignes: [
+          ...preparedSandwiches.map((item) => ({
+            type: "PRÉPARÉ",
+            nomSandwich: item.name,
+            prix: item.price,
+            qt: 1,
+          })),
+          ...personalizedSandwiches.map((item) => ({
+            type: "PERSONNALISÉ",
+            nomSandwich: item.sandwichName,
+            description: `Garnitures: ${item.garnitures.join(", ")}; Sauces: ${item.sauces.join(", ")}`,
+            // El precio es la suma del precio base del sandwich y el precio extra de ingredientes
+            //Esto es algo que quizas debas eliminar porque el pan no sera mas contado
+            prix: item.sandwichPrice + computePersonalizedPrice(item),
+            qt: 1,
+          })),
+        ],
+      };
+
+      // Enviar la commande
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/commandes`,
+        commandePayload,
+        {
+          headers: {
+            Authorization: `Bearer ${keycloak.token}`,
+          },
+        },
+      );
+
+      // Actualizar el saldo del usuario
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/user/updatesolde`,
         null,
@@ -123,13 +157,13 @@ export function Panier() {
           },
         },
       );
-      // Actualizamos el saldo con el valor retornado por el backend
       dispatch(setSaldoUser(response.data));
-      // Limpiamos el carrito
+
+      // Limpiar el carrito desde Redux
       dispatch(clearCart());
       setSuccessSnackbarOpen(true);
     } catch (error) {
-      console.error("Error al actualizar el saldo en la base de datos", error);
+      console.error("Error al procesar el pago y la commande", error);
       setErrorSnackbarOpen(true);
     }
   };
@@ -206,12 +240,9 @@ export function Panier() {
                 }}
               >
                 <ListItemText
-                  primary={`ID: ${item.id} - ${item.sandwichName || "Nombre no disponible"}`}
+                  primary={`Sandwich au choix : `}
                   secondary={
                     <>
-                      <Typography variant="body2">
-                        Precio base (pan): {panPrice.toFixed(2)} €
-                      </Typography>
                       <Typography variant="body2">
                         Garnitures: {item.garnitures.join(", ")}
                       </Typography>
@@ -219,8 +250,11 @@ export function Panier() {
                         Sauces: {item.sauces.join(", ")}
                       </Typography>
                       <Typography variant="body2">
-                        Total personalizado:{" "}
-                        {computePersonalizedPrice(item).toFixed(2)} €
+                        Total personnalisé:{" "}
+                        {(
+                          item.sandwichPrice + computePersonalizedPrice(item)
+                        ).toFixed(2)}{" "}
+                        €
                       </Typography>
                     </>
                   }

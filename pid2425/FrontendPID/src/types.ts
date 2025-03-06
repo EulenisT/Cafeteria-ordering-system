@@ -24,3 +24,18 @@ export type SaucesResponse = {
   disponible: boolean;
   prix: number;
 };
+
+export type LigneCmdResponse = {
+  num: number;
+  type: string;
+  nomSandwich: string;
+  description: string | null;
+  prix: number;
+  qt: number;
+};
+
+export type CommandeResponse = {
+  num: number;
+  date: string;
+  lignes: LigneCmdResponse[];
+};

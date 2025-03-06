@@ -52,7 +52,6 @@ export default function Personnaliser() {
 
   const dispatch = useDispatch();
 
-  // seleccionar/deseleccionar una garniture
   const handleAddClickGarniture = (garniture: GarnitureResponse) => {
     setSelectedGarnitures((prevSelected) =>
       prevSelected.includes(garniture.nom)
@@ -61,7 +60,6 @@ export default function Personnaliser() {
     );
   };
 
-  // seleccionar/deseleccionar una sauce
   const handleAddClickSauces = (sauces: SaucesResponse) => {
     setSelectedSauces((prevSelected) =>
       prevSelected.includes(sauces.nom)
@@ -70,13 +68,13 @@ export default function Personnaliser() {
     );
   };
 
-  // Precio del pan (esto pienso puedes eliminarlo, porque ya esta en panier)
-  const panPrice = 1.0;
+  // Precio del pan
+  const panPrice = 0;
 
-  // Función que agrupa los ingredientes en un objeto sandwich y lo envía al panier
+  // Agrupa los ingredientes en un objeto sandwich y lo envía al panier
   const handleAddSandwich = () => {
     const sandwich = {
-      sandwichName: "Pan1", // Esto tienes que editarlo o eliminarlo
+      sandwichName: "",
       sandwichPrice: panPrice,
       garnitures: selectedGarnitures,
       sauces: selectedSauces,
@@ -89,7 +87,6 @@ export default function Personnaliser() {
     setSelectedGarnitures([]);
     setSelectedSauces([]);
 
-    // Activa la notificación
     setNotificationOpen(true);
   };
 
