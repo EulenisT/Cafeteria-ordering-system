@@ -1,7 +1,6 @@
 package org.isfce.pid.controller;
 
 import java.util.List;
-
 import org.isfce.pid.model.Session;
 import org.isfce.pid.service.SessionService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,17 +19,27 @@ public class SessionController {
     }
 
     @GetMapping("/all")
-    public List<Session> getAllSessions() {
-        return sessionService.getAllSessions();
+    public List<Session> getToutesSessions() {
+        return sessionService.getToutesSessions();
     }
 
     @GetMapping("/active")
-    public List<Session> getActiveSessions() {
-        return sessionService.getActiveSessions();
+    public List<Session> getSessionsActives() {
+        return sessionService.getSessionsActives();
     }
 
     @GetMapping("/close/{sessionNom}")
-    public String closeSession(@PathVariable String sessionNom) {
-        return sessionService.closeSessionByName(sessionNom);
+    public String cloturerSession(@PathVariable String sessionNom) {
+        return sessionService.cloturerSessionParNom(sessionNom);
+    }
+
+    @GetMapping("/deactivate/{sessionNom}")
+    public String desactiverSession(@PathVariable String sessionNom) {
+        return sessionService.desactiverSessionParNom(sessionNom);
+    }
+
+    @GetMapping("/finalize/{sessionNom}")
+    public String fermerSession(@PathVariable String sessionNom) {
+        return sessionService.fermerSessionParNom(sessionNom);
     }
 }
