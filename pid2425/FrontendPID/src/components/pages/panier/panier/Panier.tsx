@@ -7,25 +7,30 @@ import {
   Typography,
   Divider,
   Button,
+  IconButton,
 } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { getSauces } from "../../../../api/saucesApi";
 import { getGarniture } from "../../../../api/garnitureApi";
-import { getUserInfo } from "../../../../api/userApi.ts";
-import keycloak from "../../../../keycloak/keycloak.ts";
+import { getUserInfo } from "../../../../api/userApi";
+import keycloak from "../../../../keycloak/keycloak";
 import {
   clearCart,
   removeFromCart,
   setSaldoUser,
 } from "../../../../store/expense/expense-slice";
-import PaymentSuccessSnackbar from "../snackbar_panier/PaymentSuccessSnackbar/PaymentSuccessSnackbar.tsx";
-import PaymentErrorSnackbar from "../snackbar_panier/PaymentErrorSnackbar/PaymentErrorSnackbar.tsx";
-import { RootState } from "../../../../store/store.ts";
+import PaymentErrorSnackbar from "../snackbar_panier/PaymentErrorSnackbar/PaymentErrorSnackbar";
+import { RootState } from "../../../../store/store";
+import { getActiveSession } from "../../../../api/sessionApi";
+import { SessionResponse } from "../../../../types.ts";
+import { useSnackbar } from "notistack";
+import CloseIcon from "@mui/icons-material/Close";
 
 export function Panier() {
   const dispatch = useDispatch();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   const preparedSandwiches = useSelector(
     (store: RootState) => store.EXPENSE.expenseList,
@@ -68,7 +73,14 @@ export function Panier() {
     queryFn: getSauces,
   });
 
-  const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
+  const { data: activeSessions } = useQuery<SessionResponse[]>({
+    queryKey: ["activeSession"],
+    queryFn: getActiveSession,
+    refetchInterval: 60000,
+  });
+
+  const activeSession =
+    activeSessions && activeSessions.length > 0 ? activeSessions[0] : null;
   const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
 
   const computePersonalizedPrice = (item: {
@@ -91,12 +103,10 @@ export function Panier() {
     return total;
   };
 
-  // Total para sandwiches preparados
   const totalPrepared = preparedSandwiches.reduce(
     (acc, item) => acc + item.price,
     0,
   );
-  // Para los personalizados, se suma el precio base (item.sandwichPrice) y el extra calculado
   const totalPersonalized = personalizedSandwiches.reduce(
     (acc, item) => acc + (item.sandwichPrice + computePersonalizedPrice(item)),
     0,
@@ -104,17 +114,42 @@ export function Panier() {
   const total = totalPrepared + totalPersonalized;
 
   const handlePayment = async () => {
-    // Redondeo para evitar problemas de precisión
     const roundedSaldo = Math.round(saldoUser * 100) / 100;
     const roundedTotal = Math.round(total * 100) / 100;
 
     if (roundedSaldo < roundedTotal) {
-      setErrorSnackbarOpen(true);
+      enqueueSnackbar("Saldo insuficiente para realizar el pago.", {
+        variant: "error",
+      });
+      return;
+    }
+
+    if (!activeSession) {
+      enqueueSnackbar("Aucune session active. Veuillez réessayer plus tard.", {
+        variant: "warning",
+        autoHideDuration: 4000,
+        anchorOrigin: { vertical: "top", horizontal: "center" },
+        style: {
+          top: "50%",
+          transform: "translateY(-50%)",
+          backgroundColor: "#f6edba",
+          color: "#856404",
+          border: "1px solid #ffeeba",
+        },
+        action: (key) => (
+          <IconButton
+            aria-label="close"
+            onClick={() => closeSnackbar(key)}
+            sx={{ color: "#856404" }}
+          >
+            <CloseIcon />
+          </IconButton>
+        ),
+      });
       return;
     }
 
     try {
-      // Construir el payload combinando los sandwiches preparados y personalizados
       const commandePayload = {
         lignes: [
           ...preparedSandwiches.map((item) => ({
@@ -127,15 +162,12 @@ export function Panier() {
             type: "PERSONNALISÉ",
             nomSandwich: item.sandwichName,
             description: `Garnitures: ${item.garnitures.join(", ")}; Sauces: ${item.sauces.join(", ")}`,
-            // El precio es la suma del precio base del sandwich y el precio extra de ingredientes
-            //Esto es algo que quizas debas eliminar porque el pan no sera mas contado
             prix: item.sandwichPrice + computePersonalizedPrice(item),
             qt: 1,
           })),
         ],
       };
 
-      // Enviar la commande
       await axios.post(
         `${import.meta.env.VITE_API_URL}/api/commandes`,
         commandePayload,
@@ -146,7 +178,6 @@ export function Panier() {
         },
       );
 
-      // Actualizar el saldo del usuario
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/user/updatesolde`,
         null,
@@ -158,13 +189,26 @@ export function Panier() {
         },
       );
       dispatch(setSaldoUser(response.data));
-
-      // Limpiar el carrito desde Redux
       dispatch(clearCart());
-      setSuccessSnackbarOpen(true);
+
+      let message = "";
+      switch (activeSession.nom) {
+        case "MATIN":
+          message = "Commande réalisée pour la session du matin.";
+          break;
+        case "APM":
+          message = "Commande réalisée pour la session de l'après-midi.";
+          break;
+        case "SOIR":
+          message = "Commande réalisée pour la session du soir.";
+          break;
+        default:
+          message = "Commande réalisée avec succès.";
+      }
+      enqueueSnackbar(message, { variant: "success" });
     } catch (error) {
-      console.error("Error al procesar el pago y la commande", error);
-      setErrorSnackbarOpen(true);
+      console.error("Erreur lors du paiement et de la commande", error);
+      enqueueSnackbar("Erreur lors du paiement.", { variant: "error" });
     }
   };
 
@@ -181,6 +225,15 @@ export function Panier() {
         Panier
       </Typography>
 
+      {/* Información sobre la sesión activa */}
+      <Box sx={{ textAlign: "center", mb: 2 }}>
+        {activeSession ? (
+          <Typography variant="h6">Session : {activeSession.nom}</Typography>
+        ) : (
+          <Typography variant="h6">Aucune session active</Typography>
+        )}
+      </Box>
+
       <Box sx={{ textAlign: "center", mb: 2 }}>
         {isLoading ? (
           <Typography variant="h6">Cargando saldo...</Typography>
@@ -189,6 +242,7 @@ export function Panier() {
         )}
       </Box>
 
+      {/* Listado del carrito */}
       <List>
         {preparedSandwiches.length > 0 && (
           <>
@@ -240,7 +294,7 @@ export function Panier() {
                 }}
               >
                 <ListItemText
-                  primary={`Sandwich au choix : `}
+                  primary="Sandwich au choix :"
                   secondary={
                     <>
                       <Typography variant="body2">
@@ -311,11 +365,6 @@ export function Panier() {
       >
         Payer
       </Button>
-
-      <PaymentSuccessSnackbar
-        open={successSnackbarOpen}
-        onClose={() => setSuccessSnackbarOpen(false)}
-      />
 
       <PaymentErrorSnackbar
         open={errorSnackbarOpen}

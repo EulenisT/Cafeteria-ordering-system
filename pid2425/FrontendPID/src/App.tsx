@@ -16,6 +16,8 @@ import keycloak from "./keycloak/keycloak.ts";
 import { ReactKeycloakProvider } from "@react-keycloak/web";
 import Grid from "@mui/material/Grid";
 import CircularProgress from "@mui/material/CircularProgress";
+import { SnackbarProvider } from "notistack";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
 const queryClient = new QueryClient();
 
@@ -42,32 +44,41 @@ export default function App() {
     >
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
-          <React.Fragment>
-            <CssBaseline />
-            <Container maxWidth="xl">
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  minHeight: "100vh",
-                  backgroundColor: "white",
-                }}
-              >
-                <NavBar />
-                <Box sx={{ flexGrow: 1 }}>
-                  <Routes>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="menu" element={<Menu />} />
-                    <Route path="compte" element={<Compte />} />
-                    <Route path="panier" element={<Panier />} />
-                    <Route path="personnaliser" element={<Personnaliser />} />
-                    <Route path="*" element={<PageNotFound />} />
-                  </Routes>
+          <SnackbarProvider
+            maxSnack={3}
+            iconVariant={{
+              warning: (
+                <WarningAmberIcon sx={{ color: "#856404", marginRight: 2 }} />
+              ),
+            }}
+          >
+            <React.Fragment>
+              <CssBaseline />
+              <Container maxWidth="xl">
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    minHeight: "100vh",
+                    backgroundColor: "white",
+                  }}
+                >
+                  <NavBar />
+                  <Box sx={{ flexGrow: 1 }}>
+                    <Routes>
+                      <Route path="/" element={<HomePage />} />
+                      <Route path="menu" element={<Menu />} />
+                      <Route path="compte" element={<Compte />} />
+                      <Route path="panier" element={<Panier />} />
+                      <Route path="personnaliser" element={<Personnaliser />} />
+                      <Route path="*" element={<PageNotFound />} />
+                    </Routes>
+                  </Box>
+                  <Footer />
                 </Box>
-                <Footer />
-              </Box>
-            </Container>
-          </React.Fragment>
+              </Container>
+            </React.Fragment>
+          </SnackbarProvider>
         </BrowserRouter>
       </QueryClientProvider>
     </ReactKeycloakProvider>

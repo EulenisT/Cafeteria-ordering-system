@@ -5,7 +5,7 @@ import Typography from "@mui/material/Typography";
 import CardActionArea from "@mui/material/CardActionArea";
 import Grid from "@mui/material/Grid";
 import AddIcon from "@mui/icons-material/Add";
-import { IconButton } from "@mui/material";
+import { IconButton, CircularProgress } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { getSandwiches } from "../../../../api/sandwichsApi.ts";
 import { SandwichesResponse } from "../../../../types.ts";
@@ -14,7 +14,6 @@ import pouletCurry from "../../../../assets/images/pouletCurry.png";
 import boulette from "../../../../assets/images/boulette.png";
 import fromage from "../../../../assets/images/fromage.png";
 import jambonFromage from "../../../../assets/images/jambonFromage.png";
-import CircularProgress from "@mui/material/CircularProgress";
 import {
   addSandwich,
   removeSandwich,
@@ -35,8 +34,8 @@ export default function Menu() {
     queryFn: getSandwiches,
   });
 
-  // Estado para el sandwich seleccionado
   const [selectedSandwiches, setSelectedSandwiches] = useState<string[]>([]);
+  const dispatch = useDispatch();
 
   if (!isSuccess) {
     return (
@@ -55,9 +54,6 @@ export default function Menu() {
   } else if (error) {
     return <span>Erreur...</span>;
   }
-
-  //aca REDUX
-  const dispatch = useDispatch();
 
   const handleAddClick = (sandwich: SandwichesResponse) => {
     if (selectedSandwiches.includes(sandwich.code)) {
@@ -91,11 +87,10 @@ export default function Menu() {
                 ? "2px solid #E1B0AC"
                 : "none",
               backgroundColor: selectedSandwiches.includes(sandwich.code)
-                ? " #F2D4D6"
+                ? "#F2D4D6"
                 : "transparent",
             }}
           >
-            {/* CardActionArea para permitir hacer clic en la carta */}
             <CardActionArea onClick={() => handleAddClick(sandwich)}>
               <CardMedia
                 component="img"

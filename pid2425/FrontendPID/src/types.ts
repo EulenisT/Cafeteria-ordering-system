@@ -39,3 +39,11 @@ export type CommandeResponse = {
   date: string;
   lignes: LigneCmdResponse[];
 };
+
+export type SessionResponse = {
+  num: number;
+  active: boolean;
+  heure_clture: number;
+  heure_ouverture: number;
+  nom: string;
+};

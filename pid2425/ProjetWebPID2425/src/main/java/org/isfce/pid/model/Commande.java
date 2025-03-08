@@ -1,18 +1,17 @@
 package org.isfce.pid.model;
 
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.*;
-import lombok.*;
-
 @Getter
 @Setter
-@ToString(exclude = {"lignes"})
-@EqualsAndHashCode(exclude = {"lignes"})
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @Entity
 @Table(name = "TCOMMANDE")
 public class Commande {
@@ -25,12 +24,15 @@ public class Commande {
 	@Column(name = "DATE", nullable = false)
 	private LocalDate date;
 
+	@ManyToOne
+	@JoinColumn(name = "SESSION_ID", nullable = false)
+	private Session session;
+
 	@OneToMany(cascade = CascadeType.PERSIST, mappedBy = "cmd", fetch = FetchType.EAGER)
-	@JsonManagedReference
 	private List<LigneCmd> lignes = new ArrayList<>();
 
-	public Commande(LocalDate date) {
-		super();
+	public Commande(LocalDate date, Session session) {
 		this.date = date;
+		this.session = session;
 	}
 }

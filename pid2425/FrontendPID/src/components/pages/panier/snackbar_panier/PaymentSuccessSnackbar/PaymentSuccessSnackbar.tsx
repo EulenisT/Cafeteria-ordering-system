@@ -1,3 +1,5 @@
+//Y este componente no se usa asi que puedes eliminarlo si quieres
+
 import React from "react";
 import {
   Snackbar,
@@ -6,12 +8,13 @@ import {
   SnackbarCloseReason,
 } from "@mui/material";
 
-const SlideTransition = (props: SlideProps) => {
-  return <Slide {...props} direction="up" />;
-};
+const SlideTransition = (props: SlideProps) => (
+  <Slide {...props} direction="up" />
+);
 
 interface PaymentSuccessProps {
   open: boolean;
+  message: string;
   onClose: (
     event: React.SyntheticEvent | Event,
     reason: SnackbarCloseReason,
@@ -20,6 +23,7 @@ interface PaymentSuccessProps {
 
 const PaymentSuccessSnackbar: React.FC<PaymentSuccessProps> = ({
   open,
+  message,
   onClose,
 }) => {
   return (
@@ -29,7 +33,7 @@ const PaymentSuccessSnackbar: React.FC<PaymentSuccessProps> = ({
       onClose={onClose}
       autoHideDuration={3000}
       TransitionComponent={SlideTransition}
-      message="Paiement réussi !"
+      message={message}
       sx={{
         "& .MuiSnackbarContent-root": {
           backgroundColor: "#4CAF50",

@@ -16,22 +16,40 @@ public class CommandeController {
     @Autowired
     private CommandeService commandeService;
 
+    /**
+     * Crée une nouvelle commande.
+     */
     @PostMapping
     public ResponseEntity<Commande> createCommande(@RequestBody Commande commande) {
         Commande savedCommande = commandeService.saveCommande(commande);
         return ResponseEntity.ok(savedCommande);
     }
 
+    /**
+     * Retourne toutes les commandes.
+     */
     @GetMapping
     public ResponseEntity<List<Commande>> getAllCommandes() {
         List<Commande> commandes = commandeService.getAllCommandes();
         return ResponseEntity.ok(commandes);
     }
 
+    /**
+     * Retourne une commande par son ID.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Commande> getCommandeById(@PathVariable Integer id) {
         Optional<Commande> commandeOpt = commandeService.getCommandeById(id);
         return commandeOpt.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    /**
+     * Retourne toutes les commandes d'une session spécifique.
+     */
+    @GetMapping("/session/{sessionId}")
+    public ResponseEntity<List<Commande>> getCommandesBySession(@PathVariable Long sessionId) {
+        List<Commande> commandes = commandeService.getAllCommandesBySession(sessionId);
+        return ResponseEntity.ok(commandes);
     }
 }
