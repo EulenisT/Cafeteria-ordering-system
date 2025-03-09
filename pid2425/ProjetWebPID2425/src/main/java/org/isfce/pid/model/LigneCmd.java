@@ -32,15 +32,12 @@ public class LigneCmd {
 	@Column(name = "PRIX", nullable = false)
 	private Double prix;
 
-	@Column(name = "QT", nullable = false)
-	private int qt;
 
-	public LigneCmd(Commande cmd, String nomSandwich, String type, String description, Double prix, int qt) {
+	public LigneCmd(Commande cmd, String nomSandwich, String type, String description, Double prix) {
 		this.cmd = cmd;
 		this.nomSandwich = nomSandwich;
 		this.type = type;
 		this.description = description;
 		this.prix = prix;
-		this.qt = qt;
 	}
 }

@@ -116,7 +116,7 @@ export function Historique() {
         {lastThree.map((commande) => {
           // Calcular el total de la commande
           const totalPrice = commande.lignes.reduce(
-            (acc, ligne) => acc + ligne.prix * ligne.qt,
+            (acc, ligne) => acc + ligne.prix,
             0,
           );
           // Determinar si la commande está seleccionada
@@ -161,7 +161,7 @@ export function Historique() {
                               {ligne.description ?? "Sin descripción"}
                             </Typography>
                             <Typography variant="body2">
-                              Precio: ${ligne.prix} x {ligne.qt}
+                              Precio: ${ligne.prix}
                             </Typography>
                           </>
                         }

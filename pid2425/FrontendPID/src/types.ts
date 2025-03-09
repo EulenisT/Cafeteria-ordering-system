@@ -31,7 +31,6 @@ export type LigneCmdResponse = {
   nomSandwich: string;
   description: string | null;
   prix: number;
-  qt: number;
 };
 
 export type CommandeResponse = {
@@ -43,7 +42,7 @@ export type CommandeResponse = {
 export type SessionResponse = {
   num: number;
   active: boolean;
-  heure_clture: number;
-  heure_ouverture: number;
+  heure_cloture: number;
   nom: string;
+  etat: string;
 };
