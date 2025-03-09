@@ -118,8 +118,9 @@ export function Panier() {
     const roundedTotal = Math.round(total * 100) / 100;
 
     if (roundedSaldo < roundedTotal) {
-      enqueueSnackbar("Saldo insuficiente para realizar el pago.", {
+      enqueueSnackbar("  Solde insuffisant", {
         variant: "error",
+        autoHideDuration: 4000,
       });
       return;
     }
@@ -208,7 +209,7 @@ export function Panier() {
       enqueueSnackbar(message, { variant: "success" });
     } catch (error) {
       console.error("Erreur lors du paiement et de la commande", error);
-      enqueueSnackbar("Erreur lors du paiement.", { variant: "error" });
+      enqueueSnackbar("Erreur lors du paiement", { variant: "error" });
     }
   };
 

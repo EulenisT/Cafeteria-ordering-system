@@ -28,18 +28,29 @@ public class SessionController {
         return sessionService.getSessionsActives();
     }
 
-    @GetMapping("/close/{sessionNom}")
+    @GetMapping("/cloturer/{sessionNom}")
     public String cloturerSession(@PathVariable String sessionNom) {
         return sessionService.cloturerSessionParNom(sessionNom);
     }
 
-    @GetMapping("/deactivate/{sessionNom}")
+    @GetMapping("/desactiver/{sessionNom}")
     public String desactiverSession(@PathVariable String sessionNom) {
         return sessionService.desactiverSessionParNom(sessionNom);
     }
 
-    @GetMapping("/finalize/{sessionNom}")
+    @GetMapping("/fermer/{sessionNom}")
     public String fermerSession(@PathVariable String sessionNom) {
         return sessionService.fermerSessionParNom(sessionNom);
     }
+
+    @GetMapping("/activerEtOuvrir/{sessionNom}")
+    public String activerEtOuvrirSession(@PathVariable String sessionNom) {
+        return sessionService.activerEtOuvrirSessionParNom(sessionNom);
+    }
+
+    @GetMapping("/forcerDesactiver/{sessionNom}")
+    public String forcerDesactiverSession(@PathVariable String sessionNom) {
+        return sessionService.forcerDesactiverSessionParNom(sessionNom);
+    }
+
 }

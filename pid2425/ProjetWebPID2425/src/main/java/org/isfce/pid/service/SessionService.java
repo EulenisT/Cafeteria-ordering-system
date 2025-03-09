@@ -177,4 +177,48 @@ public class SessionService {
         sessionDao.save(session);
         log.info("Session SOIR clôturée : " + session);
     }
+
+    /**
+     * Activa y abre manualmente una sesión identificada por su nombre.
+     */
+    public String activerEtOuvrirSessionParNom(String nomSession) {
+        Optional<Session> sessionOpt = sessionDao.findAll().stream()
+                .filter(s -> s.getNom().equals(nomSession))
+                .findFirst();
+        if (!sessionOpt.isPresent()) {
+            return "Aucune session trouvée avec le nom : " + nomSession;
+        }
+        Session session = sessionOpt.get();
+        if (!session.getActive()) {
+            session.setActive();
+            sessionDao.save(session);
+            log.info("Session {} activée manuellement.", nomSession);
+        }
+        session.ouvrir();
+        sessionDao.save(session);
+        if (session.getEtat() == Session.EtatSession.OUVERTE) {
+            log.info("Session {} ouverte manuellement après activation.", nomSession);
+            return "Session " + nomSession + " activée et ouverte avec succès.";
+        } else {
+            return "Session " + nomSession + " activée mais n'a pas pu être ouverte (peut-être l'heure de clôture est passée).";
+        }
+    }
+
+    /**
+     * Fuerza la desactivación de una sesión
+     */
+    public String forcerDesactiverSessionParNom(String nomSession) {
+        Optional<Session> sessionOpt = sessionDao.findAll().stream()
+                .filter(s -> s.getNom().equals(nomSession) && s.getActive())
+                .findFirst();
+        if (sessionOpt.isPresent()) {
+            Session session = sessionOpt.get();
+            session.desactiveSession();  // Este método cambiará active a false si el estado no es CLOTUREE.
+            sessionDao.save(session);
+            log.info("Session {} forcée désactivée.", nomSession);
+            return "Session " + nomSession + " désactivée avec succès.";
+        } else {
+            return "Aucune session active trouvée avec le nom : " + nomSession;
+        }
+    }
 }
