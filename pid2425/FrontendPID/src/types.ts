@@ -36,8 +36,9 @@ export type LigneCmdResponse = {
 export type CommandeResponse = {
   num: number;
   date: string;
-  lignes: LigneCmdResponse[];
   sessionNom: string;
+  username: string;
+  lignes: LigneCmdResponse[];
 };
 
 export type SessionResponse = {

@@ -32,12 +32,22 @@ public class LigneCmd {
 	@Column(name = "PRIX", nullable = false)
 	private Double prix;
 
-
 	public LigneCmd(Commande cmd, String nomSandwich, String type, String description, Double prix) {
 		this.cmd = cmd;
 		this.nomSandwich = nomSandwich;
 		this.type = type;
 		this.description = description;
 		this.prix = prix;
+	}
+
+	@PrePersist
+	@PreUpdate
+	private void prePersistOrUpdate() {
+		if (nomSandwich == null || nomSandwich.trim().isEmpty()) {
+			nomSandwich = "Personnalise";
+		}
+		if (description == null) {
+			description = "Sandwich tout préparé";
+		}
 	}
 }

@@ -27,11 +27,15 @@ public class Commande {
 	@Column(name = "SESSION_NOM", nullable = false)
 	private String sessionNom;
 
+	@Column(name = "USERNAME", nullable = false)
+	private String username;
+
 	@OneToMany(cascade = CascadeType.PERSIST, mappedBy = "cmd", fetch = FetchType.EAGER)
 	private List<LigneCmd> lignes = new ArrayList<>();
 
-	public Commande(LocalDate date, String sessionNom) {
+	public Commande(LocalDate date, String sessionNom, String username) {
 		this.date = date;
 		this.sessionNom = sessionNom;
+		this.username = username;
 	}
 }
