@@ -1,7 +1,6 @@
 package org.isfce.pid.model;
 
 import java.time.LocalTime;
-
 import lombok.Getter;
 import lombok.ToString;
 
@@ -13,17 +12,10 @@ public class Session {
     };
 
     private final String nom;
-
     private EtatSession etat;
-
     private Boolean active;
-
     private LocalTime heureCloture;
-    /**
-     *
-     * @param nom
-     * @param heureCloture
-     */
+
     public Session(String nom, LocalTime heureCloture) {
         this.nom = nom;
         this.active = false;
@@ -31,52 +23,46 @@ public class Session {
         this.heureCloture = heureCloture;
     }
 
-    /**
-     * met la session active et la met dans un état fermée
-     */
     public void setActive() {
         active = true;
         etat = EtatSession.FERMEE;
     }
 
-    /**
-     * Désactive une session si son état n'est pas cloturé
-     */
     public void desactiveSession() {
         if (!EtatSession.CLOTUREE.equals(etat)) {
             active = false;
         }
     }
 
-    /**
-     * Permet de savoir si on peut faire des commandes
-     *
-     * @return
-     */
     public boolean estOuverte() {
-        return active & etat == EtatSession.OUVERTE;
+        return active && etat == EtatSession.OUVERTE;
     }
 
-    /**
-     * ouvre une session si elle est active et fermée et que l'heure n'est pas
-     * passée
-     */
     public void ouvrir() {
         if (active && EtatSession.FERMEE.equals(etat) && this.heureCloture.isAfter(LocalTime.now()))
             etat = EtatSession.OUVERTE;
     }
 
-    /**
-     * cloture une session si elle était ouverte et active
-     */
     public void cloture() {
         if (active && EtatSession.OUVERTE.equals(etat))
             etat = EtatSession.CLOTUREE;
     }
 
-    public void fermer() {
-        if (active && EtatSession.CLOTUREE.equals(etat))
-            etat = EtatSession.FERMEE;
+    public void forceOpen() {
+        if (active) {
+            etat = EtatSession.OUVERTE;
+        }
     }
 
+    public void forceCloturer() {
+        if (active && etat == EtatSession.OUVERTE) {
+            etat = EtatSession.CLOTUREE;
+        }
+    }
+
+    public void forceFermer() {
+        if (active && etat == EtatSession.CLOTUREE) {
+            etat = EtatSession.FERMEE;
+        }
+    }
 }
