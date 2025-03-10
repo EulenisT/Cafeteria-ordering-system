@@ -64,10 +64,6 @@ public class CommandeService {
 
 
 
-
-
-
-
     public List<Commande> getAllCommandes() {
         return commandeDao.findAll();
     }

@@ -59,6 +59,25 @@ public class SandwichsController {
 			return new ResponseEntity<>(code, HttpStatus.NOT_FOUND);
 	}
 
+	/**
+	 * Méthode PUT pour mettre à jour la disponibilité.
+	 */
+	@PutMapping("/{code}/disponible")
+	public ResponseEntity<Sandwiches> mettreAJourDisponibilite(
+			@PathVariable("code") String code,
+			@RequestParam("disponible") boolean disponible) {
+
+		Optional<Sandwiches> optSandwich = dao.findById(code);
+		if (optSandwich.isPresent()) {
+			Sandwiches sandwich = optSandwich.get();
+			sandwich.setDisponible(disponible);
+			dao.save(sandwich);
+			return ResponseEntity.ok(sandwich);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
+
 	//test pour voir la personne authentifiée TO DO
 
 }

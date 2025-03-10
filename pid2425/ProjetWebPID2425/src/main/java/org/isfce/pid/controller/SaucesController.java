@@ -6,14 +6,7 @@ import org.isfce.pid.model.Sauces;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
@@ -63,10 +56,30 @@ public class SaucesController {
             return new ResponseEntity<>(code, HttpStatus.NOT_FOUND);
     }
 
+    /**
+     * Méthode PUT pour mettre à jour la disponibilité d’une sauce.
+     */
+    @PutMapping("/{code}/disponible")
+    public ResponseEntity<Sauces> mettreAJourDisponibiliteSauce(
+            @PathVariable("code") String code,
+            @RequestParam("disponible") boolean disponible) {
+
+        Optional<Sauces> oSauce = dao.findById(code);
+        if (oSauce.isPresent()) {
+            Sauces sauce = oSauce.get();
+            sauce.setDisponible(disponible);
+            dao.save(sauce);
+            return ResponseEntity.ok(sauce);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     //test pour voir la personne authentifiée
     @GetMapping("/demo")
     public Authentication demo(Authentication a) {
         return a;
     }
+
 
 }

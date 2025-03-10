@@ -8,14 +8,7 @@ import org.isfce.pid.model.Garniture;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
@@ -63,6 +56,25 @@ public class GarnitureController {
 			return new ResponseEntity<>(code, HttpStatus.OK);
 		} else
 			return new ResponseEntity<>(code, HttpStatus.NOT_FOUND);
+	}
+
+	/**
+	 * Méthode PUT pour mettre à jour la disponibilité d’une garniture.
+	 */
+	@PutMapping("/{code}/disponible")
+	public ResponseEntity<Garniture> mettreAJourDisponibiliteGarniture(
+			@PathVariable("code") String code,
+			@RequestParam("disponible") boolean disponible) {
+
+		Optional<Garniture> oGarn = dao.findById(code);
+		if (oGarn.isPresent()) {
+			Garniture garniture = oGarn.get();
+			garniture.setDisponible(disponible);
+			dao.save(garniture);
+			return ResponseEntity.ok(garniture);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
 	}
 	
 	//test pour voir la personne authentifiée
