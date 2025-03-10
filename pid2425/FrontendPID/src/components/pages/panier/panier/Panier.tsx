@@ -24,7 +24,7 @@ import {
 import PaymentErrorSnackbar from "../snackbar_panier/PaymentErrorSnackbar/PaymentErrorSnackbar";
 import { RootState } from "../../../../store/store";
 import { getActiveSession } from "../../../../api/sessionApi";
-import { SessionResponse } from "../../../../types.ts";
+import { SessionResponse } from "../../../../types";
 import { useSnackbar } from "notistack";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -33,10 +33,10 @@ export function Panier() {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   const preparedSandwiches = useSelector(
-    (store: RootState) => store.EXPENSE.expenseList,
+      (store: RootState) => store.EXPENSE.expenseList
   );
   const personalizedSandwiches = useSelector(
-    (store: RootState) => store.EXPENSE.personalizedSandwiches,
+      (store: RootState) => store.EXPENSE.personalizedSandwiches
   );
   const saldoUser = useSelector((store: RootState) => store.EXPENSE.saldoUser);
 
@@ -56,7 +56,7 @@ export function Panier() {
   });
 
   const username =
-    userProfile?.username || keycloak.tokenParsed?.preferred_username || "";
+      userProfile?.username || keycloak.tokenParsed?.preferred_username || "";
 
   useEffect(() => {
     if (isSuccess && userProfile) {
@@ -73,14 +73,16 @@ export function Panier() {
     queryFn: getSauces,
   });
 
+  // Se consulta la sesión activa (actualizada cada 60 segundos)
   const { data: activeSessions } = useQuery<SessionResponse[]>({
     queryKey: ["activeSession"],
     queryFn: getActiveSession,
     refetchInterval: 60000,
   });
 
+  // Se toma la primera sesión activa si existe
   const activeSession =
-    activeSessions && activeSessions.length > 0 ? activeSessions[0] : null;
+      activeSessions && activeSessions.length > 0 ? activeSessions[0] : null;
   const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
 
   const computePersonalizedPrice = (item: {
@@ -104,12 +106,12 @@ export function Panier() {
   };
 
   const totalPrepared = preparedSandwiches.reduce(
-    (acc, item) => acc + item.price,
-    0,
+      (acc, item) => acc + item.price,
+      0
   );
   const totalPersonalized = personalizedSandwiches.reduce(
-    (acc, item) => acc + (item.sandwichPrice + computePersonalizedPrice(item)),
-    0,
+      (acc, item) => acc + (item.sandwichPrice + computePersonalizedPrice(item)),
+      0
   );
   const total = totalPrepared + totalPersonalized;
 
@@ -118,40 +120,45 @@ export function Panier() {
     const roundedTotal = Math.round(total * 100) / 100;
 
     if (roundedSaldo < roundedTotal) {
-      enqueueSnackbar("  Solde insuffisant", {
+      enqueueSnackbar("Solde insuffisant", {
         variant: "error",
         autoHideDuration: 4000,
       });
       return;
     }
 
+    // Si no hay sesión activa, se muestra un aviso y se impide la compra
     if (!activeSession) {
-      enqueueSnackbar("Aucune session active. Veuillez réessayer plus tard.", {
-        variant: "warning",
-        autoHideDuration: 4000,
-        anchorOrigin: { vertical: "top", horizontal: "center" },
-        style: {
-          top: "50%",
-          transform: "translateY(-50%)",
-          backgroundColor: "#f6edba",
-          color: "#856404",
-          border: "1px solid #ffeeba",
-        },
-        action: (key) => (
-          <IconButton
-            aria-label="close"
-            onClick={() => closeSnackbar(key)}
-            sx={{ color: "#856404" }}
-          >
-            <CloseIcon />
-          </IconButton>
-        ),
-      });
+      enqueueSnackbar(
+          "Aucune session active. Veuillez réessayer plus tard.",
+          {
+            variant: "warning",
+            autoHideDuration: 4000,
+            anchorOrigin: { vertical: "top", horizontal: "center" },
+            style: {
+              top: "50%",
+              transform: "translateY(-50%)",
+              backgroundColor: "#f6edba",
+              color: "#856404",
+              border: "1px solid #ffeeba",
+            },
+            action: (key) => (
+                <IconButton
+                    aria-label="close"
+                    onClick={() => closeSnackbar(key)}
+                    sx={{ color: "#856404" }}
+                >
+                  <CloseIcon />
+                </IconButton>
+            ),
+          }
+      );
       return;
     }
 
     try {
       const commandePayload = {
+        // Se genera el payload de la commande con sus líneas
         lignes: [
           ...preparedSandwiches.map((item) => ({
             type: "PRÉPARÉ",
@@ -162,32 +169,36 @@ export function Panier() {
           ...personalizedSandwiches.map((item) => ({
             type: "PERSONNALISÉ",
             nomSandwich: item.sandwichName,
-            description: `Garnitures: ${item.garnitures.join(", ")}; Sauces: ${item.sauces.join(", ")}`,
+            description: `Garnitures: ${item.garnitures.join(
+                ", "
+            )}; Sauces: ${item.sauces.join(", ")}`,
             prix: item.sandwichPrice + computePersonalizedPrice(item),
             qt: 1,
           })),
         ],
       };
 
+      // Se envía la commande al backend
       await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/commandes`,
-        commandePayload,
-        {
-          headers: {
-            Authorization: `Bearer ${keycloak.token}`,
-          },
-        },
+          `${import.meta.env.VITE_API_URL}/api/commandes`,
+          commandePayload,
+          {
+            headers: {
+              Authorization: `Bearer ${keycloak.token}`,
+            },
+          }
       );
 
+      // Actualiza el saldo del usuario
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/user/updatesolde`,
-        null,
-        {
-          params: { username, montant: total },
-          headers: {
-            Authorization: `Bearer ${keycloak.token}`,
-          },
-        },
+          `${import.meta.env.VITE_API_URL}/api/user/updatesolde`,
+          null,
+          {
+            params: { username, montant: total },
+            headers: {
+              Authorization: `Bearer ${keycloak.token}`,
+            },
+          }
       );
       dispatch(setSaldoUser(response.data));
       dispatch(clearCart());
@@ -218,159 +229,164 @@ export function Panier() {
   };
 
   return (
-    <Box sx={{ width: "100%", mt: 4, px: { xs: 2, md: 4 }, mb: "80px" }}>
-      <Typography
-        variant="h4"
-        sx={{ mb: 2, fontWeight: "bold", textAlign: "center" }}
-      >
-        Panier
-      </Typography>
-
-      {/* Información sobre la sesión activa */}
-      <Box sx={{ textAlign: "center", mb: 2 }}>
-        {activeSession ? (
-          <Typography variant="h6">Session : {activeSession.nom}</Typography>
-        ) : (
-          <Typography variant="h6">Aucune session active</Typography>
-        )}
-      </Box>
-
-      <Box sx={{ textAlign: "center", mb: 2 }}>
-        {isLoading ? (
-          <Typography variant="h6">Cargando saldo...</Typography>
-        ) : (
-          <Typography variant="h6">Saldo: {saldoUser.toFixed(2)} €</Typography>
-        )}
-      </Box>
-
-      {/* Listado del carrito */}
-      <List>
-        {preparedSandwiches.length > 0 && (
-          <>
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
-              Sandwichs préparés:
-            </Typography>
-            {preparedSandwiches.map((item, index) => (
-              <ListItem
-                key={`prep-${index}`}
-                divider
-                sx={{ display: "flex", justifyContent: "space-between" }}
-              >
-                <ListItemText
-                  primary={item.name || "Nombre no disponible"}
-                  secondary={`${item.price.toFixed(2)} €`}
-                />
-                <Button
-                  variant="outlined"
-                  sx={{
-                    borderColor: "#E1B0AC",
-                    color: "#E1B0AC",
-                    backgroundColor: "#FCE4EC",
-                    "&:hover": { backgroundColor: "#E1B0AC", color: "white" },
-                  }}
-                  onClick={() => handleRemoveItem(undefined, item.name)}
-                >
-                  Retirer du panier
-                </Button>
-              </ListItem>
-            ))}
-            <Divider sx={{ my: 2 }} />
-          </>
-        )}
-
-        {personalizedSandwiches.length > 0 && (
-          <>
-            <Typography variant="h6" sx={{ mt: 2, fontWeight: "bold", mb: 1 }}>
-              Sandwichs personnalisés:
-            </Typography>
-            {personalizedSandwiches.map((item) => (
-              <ListItem
-                key={`pers-${item.id}`}
-                divider
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  py: 2,
-                }}
-              >
-                <ListItemText
-                  primary="Sandwich au choix :"
-                  secondary={
-                    <>
-                      <Typography variant="body2">
-                        Garnitures: {item.garnitures.join(", ")}
-                      </Typography>
-                      <Typography variant="body2">
-                        Sauces: {item.sauces.join(", ")}
-                      </Typography>
-                      <Typography variant="body2">
-                        Total personnalisé:{" "}
-                        {(
-                          item.sandwichPrice + computePersonalizedPrice(item)
-                        ).toFixed(2)}{" "}
-                        €
-                      </Typography>
-                    </>
-                  }
-                />
-                <Button
-                  variant="outlined"
-                  sx={{
-                    borderColor: "#E1B0AC",
-                    color: "#E1B0AC",
-                    backgroundColor: "#FCE4EC",
-                    "&:hover": { backgroundColor: "#E1B0AC", color: "white" },
-                  }}
-                  onClick={() => handleRemoveItem(item.id)}
-                >
-                  Retirer du panier
-                </Button>
-              </ListItem>
-            ))}
-            <Divider sx={{ my: 2 }} />
-          </>
-        )}
-
-        {preparedSandwiches.length === 0 &&
-          personalizedSandwiches.length === 0 && (
-            <Typography variant="body2" color="textSecondary">
-              Aucun achat disponible.
-            </Typography>
-          )}
-      </List>
-
-      <Box
-        sx={{
-          mt: 3,
-          display: "flex",
-          justifyContent: "flex-end",
-          px: { xs: 2, md: 4 },
-        }}
-      >
-        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-          Total à payer: {total.toFixed(2)} €
+      <Box sx={{ width: "100%", mt: 4, px: { xs: 2, md: 4 }, mb: "80px" }}>
+        <Typography
+            variant="h4"
+            sx={{ mb: 2, fontWeight: "bold", textAlign: "center" }}
+        >
+          Panier
         </Typography>
+
+        {/* Información sobre la sesión activa */}
+        <Box sx={{ textAlign: "center", mb: 2 }}>
+          {activeSession ? (
+              <Typography variant="h6">Session : {activeSession.nom}</Typography>
+          ) : (
+              <Typography variant="h6">Aucune session active</Typography>
+          )}
+        </Box>
+
+        <Box sx={{ textAlign: "center", mb: 2 }}>
+          {isLoading ? (
+              <Typography variant="h6">Cargando saldo...</Typography>
+          ) : (
+              <Typography variant="h6">
+                Saldo: {saldoUser.toFixed(2)} €
+              </Typography>
+          )}
+        </Box>
+
+        {/* Listado del carrito */}
+        <List>
+          {preparedSandwiches.length > 0 && (
+              <>
+                <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
+                  Sandwichs préparés:
+                </Typography>
+                {preparedSandwiches.map((item, index) => (
+                    <ListItem
+                        key={`prep-${index}`}
+                        divider
+                        sx={{ display: "flex", justifyContent: "space-between" }}
+                    >
+                      <ListItemText
+                          primary={item.name || "Nombre no disponible"}
+                          secondary={`${item.price.toFixed(2)} €`}
+                      />
+                      <Button
+                          variant="outlined"
+                          sx={{
+                            borderColor: "#E1B0AC",
+                            color: "#E1B0AC",
+                            backgroundColor: "#FCE4EC",
+                            "&:hover": { backgroundColor: "#E1B0AC", color: "white" },
+                          }}
+                          onClick={() => handleRemoveItem(undefined, item.name)}
+                      >
+                        Retirer du panier
+                      </Button>
+                    </ListItem>
+                ))}
+                <Divider sx={{ my: 2 }} />
+              </>
+          )}
+
+          {personalizedSandwiches.length > 0 && (
+              <>
+                <Typography variant="h6" sx={{ mt: 2, fontWeight: "bold", mb: 1 }}>
+                  Sandwichs personnalisés:
+                </Typography>
+                {personalizedSandwiches.map((item) => (
+                    <ListItem
+                        key={`pers-${item.id}`}
+                        divider
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          py: 2,
+                        }}
+                    >
+                        <ListItemText
+                            primary="Sandwich au choix :"
+                            secondary={
+                                <>
+                                    <Typography variant="body2" component="span">
+                                        Garnitures: {item.garnitures.join(", ")}
+                                    </Typography>
+                                    <br />
+                                    <Typography variant="body2" component="span">
+                                        Sauces: {item.sauces.join(", ")}
+                                    </Typography>
+                                    <br />
+                                    <Typography variant="body2" component="span">
+                                        Total personnalisé:{" "}
+                                        {(
+                                            item.sandwichPrice + computePersonalizedPrice(item)
+                                        ).toFixed(2)}{" "}
+                                        €
+                                    </Typography>
+                                </>
+                            }
+                        />
+
+                        <Button
+                          variant="outlined"
+                          sx={{
+                            borderColor: "#E1B0AC",
+                            color: "#E1B0AC",
+                            backgroundColor: "#FCE4EC",
+                            "&:hover": { backgroundColor: "#E1B0AC", color: "white" },
+                          }}
+                          onClick={() => handleRemoveItem(item.id)}
+                      >
+                        Retirer du panier
+                      </Button>
+                    </ListItem>
+                ))}
+                <Divider sx={{ my: 2 }} />
+              </>
+          )}
+
+          {preparedSandwiches.length === 0 &&
+              personalizedSandwiches.length === 0 && (
+                  <Typography variant="body2" color="textSecondary">
+                    Aucun achat disponible.
+                  </Typography>
+              )}
+        </List>
+
+        <Box
+            sx={{
+              mt: 3,
+              display: "flex",
+              justifyContent: "flex-end",
+              px: { xs: 2, md: 4 },
+            }}
+        >
+          <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+            Total à payer: {total.toFixed(2)} €
+          </Typography>
+        </Box>
+
+        <Button
+            variant="contained"
+            sx={{
+              mt: 1,
+              borderColor: "#E1B0AC",
+              color: "white",
+              backgroundColor: "#E1B0AC",
+            }}
+            onClick={handlePayment}
+            disabled={total === 0 || !activeSession}  // Deshabilitado si no hay sesión activa
+        >
+          Payer
+        </Button>
+
+        <PaymentErrorSnackbar
+            open={errorSnackbarOpen}
+            onClose={() => setErrorSnackbarOpen(false)}
+        />
       </Box>
-
-      <Button
-        variant="contained"
-        sx={{
-          mt: 1,
-          borderColor: "#E1B0AC",
-          color: "white",
-          backgroundColor: "#E1B0AC",
-        }}
-        onClick={handlePayment}
-        disabled={total === 0}
-      >
-        Payer
-      </Button>
-
-      <PaymentErrorSnackbar
-        open={errorSnackbarOpen}
-        onClose={() => setErrorSnackbarOpen(false)}
-      />
-    </Box>
   );
 }

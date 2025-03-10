@@ -24,15 +24,14 @@ public class Commande {
 	@Column(name = "DATE", nullable = false)
 	private LocalDate date;
 
-	@ManyToOne
-	@JoinColumn(name = "SESSION_ID", nullable = false)
-	private Session session;
+	@Column(name = "SESSION_NOM", nullable = false)
+	private String sessionNom;
 
 	@OneToMany(cascade = CascadeType.PERSIST, mappedBy = "cmd", fetch = FetchType.EAGER)
 	private List<LigneCmd> lignes = new ArrayList<>();
 
-	public Commande(LocalDate date, Session session) {
+	public Commande(LocalDate date, String sessionNom) {
 		this.date = date;
-		this.session = session;
+		this.sessionNom = sessionNom;
 	}
 }

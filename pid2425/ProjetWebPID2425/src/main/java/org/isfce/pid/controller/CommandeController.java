@@ -45,11 +45,11 @@ public class CommandeController {
     }
 
     /**
-     * Retourne toutes les commandes d'une session spécifique.
+     * Retourne toutes les commandes d'une session spécifique (identifiée par son nom).
      */
-    @GetMapping("/session/{sessionId}")
-    public ResponseEntity<List<Commande>> getCommandesBySession(@PathVariable Long sessionId) {
-        List<Commande> commandes = commandeService.getAllCommandesBySession(sessionId);
+    @GetMapping("/session/{sessionNom}")
+    public ResponseEntity<List<Commande>> getCommandesBySession(@PathVariable String sessionNom) {
+        List<Commande> commandes = commandeService.getAllCommandesBySession(sessionNom);
         return ResponseEntity.ok(commandes);
     }
 }
