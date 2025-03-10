@@ -43,32 +43,49 @@ public class SessionService {
 
     @PostConstruct
     public void initSessionState() {
+        updateSessions();
+    }
+
+    /**
+     * Méthode qui se déclenche toutes les minutes pour mettre à jour l'état des sessions
+     * en fonction de l'heure actuelle.
+     */
+    @Scheduled(cron = "0 * * * * ?")
+    public void updateSessions() {
         LocalTime now = LocalTime.now();
-        // Definimos el hora de activación para MATIN (por ejemplo, 08:00)
+        log.info("Mise à jour des sessions à l'heure: {}", now);
+
+        // Désactive toutes les sessions
+        sessions.forEach(session -> {
+            // On force la désactivation si la session est ouverte ou fermée.
+            if (session.estOuverte() || session.getEtat().equals(Session.EtatSession.FERMEE)) {
+                session.desactiveSession();
+            }
+        });
+
+        // Règles d'activation selon les horaires définis.
+        // Exemple d'intervalles :
+        // MATIN: de 08:00 à la fermeture MATIN
+        // APM: de la fermeture MATIN à la fermeture APM
+        // SOIR: de la fermeture APM à la fermeture SOIR
         LocalTime activationTime = LocalTime.of(8, 0);
 
-        // Si la hora actual es entre 08:00 y la hora de cierre de MATIN (09:30)
         if (!now.isBefore(activationTime) && now.isBefore(sessions.get(0).getHeureCloture())) {
             sessions.get(0).setActive();
             sessions.get(0).ouvrir();
-            log.info("Session MATIN activée lors de l'initialisation (heure actuelle: {})", now);
-        }
-        // Si la hora actual es entre el cierre de MATIN (09:30) y el cierre de APM (14:30)
-        else if (now.isAfter(sessions.get(0).getHeureCloture()) && now.isBefore(sessions.get(1).getHeureCloture())) {
+            log.info("Session MATIN activée (état: {})", sessions.get(0).getEtat());
+        } else if (now.isAfter(sessions.get(0).getHeureCloture()) && now.isBefore(sessions.get(1).getHeureCloture())) {
             sessions.get(1).setActive();
             sessions.get(1).ouvrir();
-            log.info("Session APM activée lors de l'initialisation (heure actuelle: {})", now);
-        }
-        // Si la hora actual es entre el cierre de APM (14:30) y el cierre de SOIR (19:30)
-        else if (now.isAfter(sessions.get(1).getHeureCloture()) && now.isBefore(sessions.get(2).getHeureCloture())) {
+            log.info("Session APM activée (état: {})", sessions.get(1).getEtat());
+        } else if (now.isAfter(sessions.get(1).getHeureCloture()) && now.isBefore(sessions.get(2).getHeureCloture())) {
             sessions.get(2).setActive();
             sessions.get(2).ouvrir();
-            log.info("Session SOIR activée lors de l'initialisation (heure actuelle: {})", now);
+            log.info("Session SOIR activée (état: {})", sessions.get(2).getEtat());
         } else {
-            log.info("Aucune session activée lors de l'initialisation (heure actuelle: {})", now);
+            log.info("Aucune session activée à l'heure: {}", now);
         }
     }
-
 
     /**
      * Retourne les sessions actives.
@@ -80,7 +97,8 @@ public class SessionService {
     }
 
     /**
-     * Active les sessions selon le cron défini.
+     * Méthode programmée pour activer les sessions à l'heure d'activation définie.
+     * (Peut être conservée ou ajustée si nécessaire)
      */
     @Scheduled(cron = "${cafet.session.activate.on-time}")
     private void activateSession() {
