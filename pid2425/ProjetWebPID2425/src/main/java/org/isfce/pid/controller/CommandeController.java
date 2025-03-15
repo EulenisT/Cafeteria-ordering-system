@@ -7,6 +7,7 @@ import org.isfce.pid.model.Commande;
 import org.isfce.pid.service.CommandeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -48,6 +49,7 @@ public class CommandeController {
      * Retourne toutes les commandes d'une session spécifique (identifiée par son nom).
      */
     @GetMapping("/session/{sessionNom}")
+    @PreAuthorize("hasAnyRole('CAFET','ADMIN')")
     public ResponseEntity<List<Commande>> getCommandesBySession(@PathVariable String sessionNom) {
         List<Commande> commandes = commandeService.getAllCommandesBySession(sessionNom);
         return ResponseEntity.ok(commandes);

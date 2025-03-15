@@ -7,6 +7,7 @@ import org.isfce.pid.dao.IGarnitureDao;
 import org.isfce.pid.model.Garniture;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,12 +45,14 @@ public class GarnitureController {
 	}
 
 	@PostMapping(path = "/add", consumes = "application/json")
+	@PreAuthorize("hasAnyRole('CAFET','ADMIN')")
 	public ResponseEntity<Garniture> addGarniture(@Valid @RequestBody Garniture garniture) {
 		garniture = dao.save(garniture);
 		return ResponseEntity.ok(garniture);
 	}
 
 	@DeleteMapping("/{code}/delete")
+	@PreAuthorize("hasAnyRole('CAFET','ADMIN')")
 	public ResponseEntity<String> deleteGarniture(@PathVariable("code") String code) {
 		if (dao.existsById(code)) {
 			dao.deleteById(code);
@@ -62,6 +65,7 @@ public class GarnitureController {
 	 * Méthode PUT pour mettre à jour la disponibilité d’une garniture.
 	 */
 	@PutMapping("/{code}/disponible")
+	@PreAuthorize("hasAnyRole('CAFET','ADMIN')")
 	public ResponseEntity<Garniture> mettreAJourDisponibiliteGarniture(
 			@PathVariable("code") String code,
 			@RequestParam("disponible") boolean disponible) {

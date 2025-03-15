@@ -47,7 +47,7 @@ public class SessionService {
 
         sessions.forEach(session -> {
             if (session.estOuverte() || session.getEtat().equals(Session.EtatSession.FERMEE)) {
-                session.desactiveSession();
+                session.desactiverSession();
             }
         });
 
@@ -82,7 +82,7 @@ public class SessionService {
         for (Session s : sessions) {
             if (s.getNom().equalsIgnoreCase(sessionNom)) {
                 s.setActive();
-                s.forceOpen();
+                s.forceOuvrir();
                 log.info("Session {} ouverte manuellement.", sessionNom);
                 return "Session " + sessionNom + " ouverte manuellement.";
             }

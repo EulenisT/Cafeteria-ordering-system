@@ -24,6 +24,7 @@ public class UserController {
 	}
 
 	@PostMapping(path = "/incsolde")
+	@PreAuthorize("hasAnyRole('CAFET','ADMIN')")
 	public ResponseEntity<Double> updateSolde(@RequestParam("username") String username,
 											  @RequestParam("montant") Double montant) {
 		log.info("Crediter: " + username + " montant: " + montant);

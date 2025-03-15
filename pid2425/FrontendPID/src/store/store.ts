@@ -12,17 +12,16 @@ import {
   REGISTER,
 } from "redux-persist";
 
-// Configuración de persistencia
 const persistConfig = {
   key: "root",
-  storage, //(localStorage)
+  storage,
 };
 
 const persistedReducer = persistReducer(persistConfig, expenseReducer);
 
 const store = configureStore({
   reducer: {
-    EXPENSE: persistedReducer, // Ahora este reducer tiene persistencia
+    EXPENSE: persistedReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

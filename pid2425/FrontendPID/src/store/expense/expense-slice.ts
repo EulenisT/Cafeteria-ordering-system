@@ -1,10 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-interface AllItem {
-  name: string;
-  price: number;
-}
-
 interface PersonalizedSandwich {
   id: number;
   sandwichName: string;
@@ -13,77 +8,71 @@ interface PersonalizedSandwich {
   sauces: string[];
 }
 
-interface ExpenseState {
-  expenseList: AllItem[];
+interface CartByUser {
   personalizedSandwiches: PersonalizedSandwich[];
   personalizedCount: number;
-  saldoUser: number;
+}
+
+interface ExpenseState {
+  currentUser: string | null;
+  carts: { [user: string]: CartByUser };
+  balanceUser: number;
 }
 
 const initialState: ExpenseState = {
-  expenseList: [],
-  personalizedSandwiches: [],
-  personalizedCount: 0,
-  saldoUser: 0,
+  currentUser: null,
+  carts: {},
+  balanceUser: 0,
 };
 
 export const expenseSlice = createSlice({
   name: "expenseSlice",
   initialState,
   reducers: {
-    setSaldoUser: (state, action: PayloadAction<number>) => {
-      state.saldoUser = action.payload;
-    },
-    addSandwich: (state, action: PayloadAction<AllItem>) => {
-      state.expenseList.push(action.payload);
-    },
-    removeSandwich: (state, action: PayloadAction<AllItem>) => {
-      const index = state.expenseList.findIndex(
-        (item) => item.name === action.payload.name,
-      );
-      if (index !== -1) {
-        state.expenseList.splice(index, 1);
+    // Al establecer el usuario actual, se inicializa su carrito si no existe.
+    setCurrentUser: (state, action: PayloadAction<string>) => {
+      state.currentUser = action.payload;
+      if (!state.carts[action.payload]) {
+        state.carts[action.payload] = { personalizedSandwiches: [], personalizedCount: 0 };
       }
     },
+    setBalanceUser: (state, action: PayloadAction<number>) => {
+      state.balanceUser = action.payload;
+    },
     addPersonalizedSandwich: (
-      state,
-      action: PayloadAction<Omit<PersonalizedSandwich, "id">>,
+        state,
+        action: PayloadAction<Omit<PersonalizedSandwich, "id">>
     ) => {
-      state.personalizedCount += 1;
-      const newSandwich: PersonalizedSandwich = {
-        id: state.personalizedCount,
-        ...action.payload,
-      };
-      state.personalizedSandwiches.push(newSandwich);
+      if (state.currentUser) {
+        const userCart = state.carts[state.currentUser];
+        userCart.personalizedCount += 1;
+        const newSandwich: PersonalizedSandwich = {
+          id: userCart.personalizedCount,
+          ...action.payload,
+        };
+        userCart.personalizedSandwiches.push(newSandwich);
+      }
     },
     clearCart: (state) => {
-      state.expenseList = [];
-      state.personalizedSandwiches = [];
-      state.personalizedCount = 0;
+      if (state.currentUser) {
+        state.carts[state.currentUser] = { personalizedSandwiches: [], personalizedCount: 0 };
+      }
     },
-    removeFromCart: (
-      state,
-      action: PayloadAction<{ id?: number; name?: string }>,
-    ) => {
-      if (action.payload.id) {
-        state.personalizedSandwiches = state.personalizedSandwiches.filter(
-          (sandwich) => sandwich.id !== action.payload.id,
-        );
-      } else if (action.payload.name) {
-        const index = state.expenseList.findIndex(
-          (item) => item.name === action.payload.name,
-        );
-        if (index !== -1) state.expenseList.splice(index, 1);
+    removeFromCart: (state, action: PayloadAction<{ id?: number }>) => {
+      if (state.currentUser && action.payload.id) {
+        state.carts[state.currentUser].personalizedSandwiches =
+            state.carts[state.currentUser].personalizedSandwiches.filter(
+                (sandwich) => sandwich.id !== action.payload.id,
+            );
       }
     },
   },
 });
 
 export const {
-  addSandwich,
-  removeSandwich,
+  setCurrentUser,
+  setBalanceUser,
   addPersonalizedSandwich,
-  setSaldoUser,
   clearCart,
   removeFromCart,
 } = expenseSlice.actions;

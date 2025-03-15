@@ -6,6 +6,7 @@ import java.util.List;
 import org.isfce.pid.model.dto.ListCmdSessionDto;
 import org.isfce.pid.service.CommandeService;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,9 +23,10 @@ public class ListCmdSessionController {
     }
 
     @GetMapping("/pedidos/session/{sessionNom}/date/{date}")
+    @PreAuthorize("hasAnyRole('CAFET','ADMIN')")
     public List<ListCmdSessionDto> getPedidosBySessionAndDate(
             @PathVariable String sessionNom,
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        return commandeService.getPedidosBySessionAndDate(sessionNom, date);
+        return commandeService.getCommandesBySessionAndDate(sessionNom, date);
     }
 }

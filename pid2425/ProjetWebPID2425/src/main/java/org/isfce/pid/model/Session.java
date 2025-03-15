@@ -28,7 +28,7 @@ public class Session {
         etat = EtatSession.FERMEE;
     }
 
-    public void desactiveSession() {
+    public void desactiverSession() {
         if (!EtatSession.CLOTUREE.equals(etat)) {
             active = false;
         }
@@ -48,7 +48,7 @@ public class Session {
             etat = EtatSession.CLOTUREE;
     }
 
-    public void forceOpen() {
+    public void forceOuvrir() {
         if (active) {
             etat = EtatSession.OUVERTE;
         }

@@ -20,9 +20,6 @@ public class LigneCmd {
 	@JsonBackReference
 	private Commande cmd;
 
-	@Column(name = "TYPE", nullable = false)
-	private String type;
-
 	@Column(name = "NOM_SANDWICH", nullable = false)
 	private String nomSandwich;
 
@@ -32,22 +29,11 @@ public class LigneCmd {
 	@Column(name = "PRIX", nullable = false)
 	private Double prix;
 
-	public LigneCmd(Commande cmd, String nomSandwich, String type, String description, Double prix) {
+	public LigneCmd(Commande cmd, String nomSandwich,String description, Double prix) {
 		this.cmd = cmd;
 		this.nomSandwich = nomSandwich;
-		this.type = type;
 		this.description = description;
 		this.prix = prix;
 	}
 
-	@PrePersist
-	@PreUpdate
-	private void prePersistOrUpdate() {
-		if (nomSandwich == null || nomSandwich.trim().isEmpty()) {
-			nomSandwich = "Personnalise";
-		}
-		if (description == null) {
-			description = "Sandwich tout préparé";
-		}
-	}
 }

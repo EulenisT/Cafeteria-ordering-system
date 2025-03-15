@@ -16,11 +16,9 @@ import { useDispatch } from "react-redux";
 import { CommandeResponse, UserResponse } from "../../../../types";
 import { getCommandes } from "../../../../api/commandeApi";
 import { getUserInfo } from "../../../../api/userApi";
-import {
-  addSandwich,
-  addPersonalizedSandwich,
-} from "../../../../store/expense/expense-slice";
+import {addPersonalizedSandwich} from "../../../../store/expense/expense-slice";
 import { useQuery } from "@tanstack/react-query";
+import LoadingSpinner from "../../../loadingSpinner/LoadingSpinner.tsx";
 
 export function Historique() {
   const [commandes, setCommandes] = useState<CommandeResponse[]>([]);
@@ -29,7 +27,7 @@ export function Historique() {
   const [selectedCommandes, setSelectedCommandes] = useState<number[]>([]);
   const dispatch = useDispatch();
 
-  // información del usuario conectado mediante getUserInfo
+  //  Informations de l’utilisateur
   const { data: userInfo, isLoading: userLoading } = useQuery<UserResponse>({
     queryKey: ["userInfo"],
     queryFn: getUserInfo,
@@ -39,57 +37,57 @@ export function Historique() {
     const fetchCommandes = async () => {
       try {
         const data = await getCommandes();
-        console.log("Respuesta de la API:", data);
         setCommandes(data);
       } catch (err) {
-        console.error(err);
-        setError("Error al cargar el histórico de commandes.");
+        setError("Erreur lors du chargement de l’historique des commandes");
       } finally {
         setLoading(false);
       }
     };
-
     fetchCommandes();
   }, []);
 
   if (loading || userLoading) {
-    return <Typography>Cargando histórico...</Typography>;
+    return <LoadingSpinner/>;
   }
   if (error) {
-    return <Typography color="error">{error}</Typography>;
+    return <Typography color="error">Erreur lors du chargement : {error}</Typography>;
   }
   if (commandes.length === 0) {
-    return <Typography>No se encontraron commandes.</Typography>;
-  }
-
-  // Filtrar las commandes para que solo muestre las del usuario actual
-  const currentUser = userInfo?.username;
-  const userCommandes = commandes.filter((c) => c.username === currentUser);
-
-  if (userCommandes.length === 0) {
     return (
-      <Typography>No se encontraron commandes para el usuario.</Typography>
+        <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              minHeight: "30vh",
+            }}
+        >
+          <Typography variant="h6" sx={{ color: "grey.500", textAlign: "center" }}>
+            Aucune historique n'a été trouvée pour l'utilisateur
+          </Typography>
+        </Box>
     );
   }
 
-  // Ordenar las commandes de más recientes a más antiguas
+  // Filtrer les commandes
+  const currentUser = userInfo?.username;
+  const userCommandes = commandes.filter((c) => c.username === currentUser);
+
+  // Trier les commandes des plus récentes aux plus anciennes
   const sortedCommandes = [...userCommandes].sort((a, b) => {
     const dateDiff = new Date(b.date).getTime() - new Date(a.date).getTime();
-    if (dateDiff === 0) {
-      return b.num - a.num;
-    }
-    return dateDiff;
+    return dateDiff === 0 ? b.num - a.num : dateDiff;
   });
 
-  // Tomar solo las 3 últimas commandes
+  // Prendre seulement les trois dernières commandes
   const lastThree = sortedCommandes.slice(0, 3);
-  console.log("Últimas 3 commandes del usuario:", lastThree);
 
   const toggleSelection = (commandeNum: number) => {
     setSelectedCommandes((prevSelected) =>
-      prevSelected.includes(commandeNum)
-        ? prevSelected.filter((n) => n !== commandeNum)
-        : [...prevSelected, commandeNum],
+        prevSelected.includes(commandeNum)
+            ? prevSelected.filter((n) => n !== commandeNum)
+            : [...prevSelected, commandeNum],
     );
   };
 
@@ -97,23 +95,14 @@ export function Historique() {
     lastThree.forEach((commande) => {
       if (selectedCommandes.includes(commande.num)) {
         commande.lignes.forEach((ligne) => {
-          if (ligne.type === "PRÉPARÉ") {
-            dispatch(
-              addSandwich({
-                name: ligne.nomSandwich,
-                price: ligne.prix,
-              }),
-            );
-          } else if (ligne.type === "PERSONNALISÉ") {
-            dispatch(
+          dispatch(
               addPersonalizedSandwich({
                 sandwichName: ligne.nomSandwich,
                 sandwichPrice: ligne.prix,
                 garnitures: [],
                 sauces: [],
               }),
-            );
-          }
+          );
         });
       }
     });
@@ -121,89 +110,77 @@ export function Historique() {
   };
 
   return (
-    <Box sx={{ marginBottom: "100px" }}>
-      <Container sx={{ marginTop: 6 }}>
-        <Typography variant="h6" gutterBottom>
-          Histórico de las 3 últimas Commandes
-        </Typography>
-        {lastThree.map((commande) => {
-          const totalPrice = commande.lignes.reduce(
-            (acc, ligne) => acc + ligne.prix,
-            0,
-          );
-          const isSelected = selectedCommandes.includes(commande.num);
+      <Box sx={{ marginBottom: "100px" }}>
+        <Container sx={{ marginTop: 6 }}>
+          <Typography variant="h6" gutterBottom>
+            Historique des trois dernières commandes
+          </Typography>
+          {lastThree.map((commande) => {
+            const totalPrice = commande.lignes.reduce(
+                (acc, ligne) => acc + ligne.prix,
+                0,
+            );
+            const isSelected = selectedCommandes.includes(commande.num);
 
-          return (
-            <Card
-              key={commande.num}
-              variant="outlined"
-              onClick={() => toggleSelection(commande.num)}
-              sx={{
-                marginBottom: 2,
-                border: isSelected ? "2px solid #E1B0AC" : "1px solid #ccc",
-                cursor: "pointer",
-              }}
+            return (
+                <Card
+                    key={commande.num}
+                    variant="outlined"
+                    onClick={() => toggleSelection(commande.num)}
+                    sx={{
+                      marginBottom: 2,
+                      border: isSelected ? "2px solid #E1B0AC" : "1px solid #ccc",
+                      cursor: "pointer",
+                    }}
+                >
+                  <CardHeader
+                      subheader={`Fecha: ${new Date(
+                          commande.date,
+                      ).toLocaleDateString()} - Session: ${
+                          commande.sessionNom || "N/A"
+                      }`}
+                  />
+                  <CardContent>
+                    <List>
+                      {commande.lignes.map((ligne) => (
+                          <ListItem key={ligne.num}>
+                            <ListItemText
+                                primary={ligne.nomSandwich}
+                                secondary={
+                                  <>
+                                    <Typography variant="body2" component="span">
+                                      Description:{" "}
+                                      {ligne.description || "Sans description"}
+                                    </Typography>
+                                    <br />
+                                    <Typography variant="body2" component="span">
+                                      Total: {ligne.prix.toFixed(2)} €
+                                    </Typography>
+                                  </>
+                                }
+                            />
+                          </ListItem>
+                      ))}
+                    </List>
+                    <Divider sx={{ marginY: 1 }} />
+                    <Typography variant="subtitle1" align="right">
+                      Total: {totalPrice.toFixed(2)} €
+                    </Typography>
+                  </CardContent>
+                </Card>
+            );
+          })}
+          <Box sx={{ textAlign: "center", mt: 4 }}>
+            <Button
+                variant="contained"
+                sx={{ backgroundColor: "#E1B0AC", color: "white" }}
+                onClick={handleAddSelectedToCart}
+                disabled={selectedCommandes.length === 0}
             >
-              <CardHeader
-                title={`Commande #${commande.num}`}
-                subheader={`Fecha: ${new Date(
-                  commande.date,
-                ).toLocaleDateString()} - Session: ${
-                  commande.sessionNom || "N/A"
-                }`}
-              />
-              <CardContent>
-                <List>
-                  {commande.lignes.map((ligne) => (
-                    <ListItem key={ligne.num}>
-                      <ListItemText
-                        primary={
-                          <>
-                            {ligne.nomSandwich}{" "}
-                            <Typography
-                              component="span"
-                              variant="body2"
-                              sx={{ fontWeight: "bold", color: "#E1B0AC" }}
-                            >
-                              {ligne.type}
-                            </Typography>
-                          </>
-                        }
-                        secondary={
-                          <>
-                            <Typography variant="body2" component="span">
-                              Descripción:{" "}
-                              {ligne.description || "Sin descripción"}
-                            </Typography>
-                            <br />
-                            <Typography variant="body2" component="span">
-                              Precio: {ligne.prix.toFixed(2)} €
-                            </Typography>
-                          </>
-                        }
-                      />
-                    </ListItem>
-                  ))}
-                </List>
-                <Divider sx={{ marginY: 1 }} />
-                <Typography variant="subtitle1" align="right">
-                  Total: {totalPrice.toFixed(2)} €
-                </Typography>
-              </CardContent>
-            </Card>
-          );
-        })}
-        <Box sx={{ textAlign: "center", mt: 4 }}>
-          <Button
-            variant="contained"
-            sx={{ backgroundColor: "#E1B0AC", color: "white" }}
-            onClick={handleAddSelectedToCart}
-            disabled={selectedCommandes.length === 0}
-          >
-            Agregar seleccionadas al carrito
-          </Button>
-        </Box>
-      </Container>
-    </Box>
+              Ajouter au panier
+            </Button>
+          </Box>
+        </Container>
+      </Box>
   );
 }

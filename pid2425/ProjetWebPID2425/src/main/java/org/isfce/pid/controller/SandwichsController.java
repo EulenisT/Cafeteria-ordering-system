@@ -35,8 +35,7 @@ public class SandwichsController {
 	ResponseEntity<List<Sandwiches>> getListeSandwichs() {
 		return new ResponseEntity<>(dao.findAll(), HttpStatus.OK);
 	}
-	
-//	@PreAuthorize(value="hasAnyRole('USER','CAFET')")
+
 	@GetMapping(params = "dispo")
 	ResponseEntity<List<Sandwiches>> getListeSandwichsDispo(
 			@RequestParam(name = "dispo", defaultValue = "true") boolean dispo) {
@@ -44,13 +43,15 @@ public class SandwichsController {
 	}
 
 
-	@PostMapping(path = "/add", consumes = "application/json") // précise le format du cours
+	@PostMapping(path = "/add", consumes = "application/json")
+	@PreAuthorize("hasAnyRole('CAFET','ADMIN')")
 	public ResponseEntity<Sandwiches> addSandwiches(@Valid @RequestBody Sandwiches sandwiches) {
 		sandwiches = dao.save(sandwiches);
 		return ResponseEntity.ok(sandwiches);
 	}
 
 	@DeleteMapping("/{code}/delete")
+	@PreAuthorize("hasAnyRole('CAFET','ADMIN')")
 	public ResponseEntity<String> deleteSandwiches(@PathVariable("code") String code) {
 		if (dao.existsById(code)) {
 			dao.deleteById(code);
@@ -63,6 +64,7 @@ public class SandwichsController {
 	 * Méthode PUT pour mettre à jour la disponibilité.
 	 */
 	@PutMapping("/{code}/disponible")
+	@PreAuthorize("hasAnyRole('CAFET','ADMIN')")
 	public ResponseEntity<Sandwiches> mettreAJourDisponibilite(
 			@PathVariable("code") String code,
 			@RequestParam("disponible") boolean disponible) {

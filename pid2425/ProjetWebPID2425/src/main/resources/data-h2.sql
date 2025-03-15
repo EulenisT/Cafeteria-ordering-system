@@ -19,18 +19,18 @@ MERGE into TSANDWICHES(CODE,PRIX) values
 ('JBFR',3.2),
 ('FROM',3.0);
 
-MERGE INTO TGARNITURE(CODE,PRIX) VALUES
-('SA',0.30),
-('TO',0.30),
-('OE',1.0),
-('MA',0.30),
-('CA',0.30);
+MERGE INTO TGARNITURE(CODE) VALUES
+('SA'),
+('TO'),
+('OE'),
+('MA'),
+('CA');
 
-MERGE into TSAUCES(CODE,PRIX) values
-('MY',0.30),
-('TT',0.30),
-('MT',0.30),
-('BZ',0.30);
+MERGE into TSAUCES(CODE) values
+('MY'),
+('TT'),
+('MT'),
+('BZ');
 
 MERGE into TUSER(username,email,nom,prenom,solde) values
 ('dvo','vo@isfce.be','VO','Didier',100.0),

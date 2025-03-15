@@ -34,7 +34,7 @@ public class CommandeService {
             throw new RuntimeException("Impossible de passer une commande car aucune session n'est active");
         }
         Session session = sessionOpt.get();
-        System.out.println("Session active obtenida: " + session);
+        System.out.println("Session active obtenue: " + session);
         commande.setSessionNom(session.getNom());
         commande.setDate(LocalDate.now());
 
@@ -55,14 +55,9 @@ public class CommandeService {
         return (authentication != null) ? authentication.getName() : null;
     }
 
-
-
     public List<Commande> getAllCommandesBySession(String sessionNom) {
         return commandeDao.findBySessionNom(sessionNom);
     }
-
-
-
 
     public List<Commande> getAllCommandes() {
         return commandeDao.findAll();
@@ -72,32 +67,28 @@ public class CommandeService {
         return commandeDao.findById(id);
     }
 
-
-    public List<ListCmdSessionDto> getPedidosBySessionAndDate(String sessionNom, LocalDate date) {
+    public List<ListCmdSessionDto> getCommandesBySessionAndDate(String sessionNom, LocalDate date) {
         List<Commande> commandes = commandeDao.findBySessionNomAndDate(sessionNom, date);
         return commandes.stream().map(commande -> {
-            ListCmdSessionDto dto = new ListCmdSessionDto();
-            dto.setCommandeNum(commande.getNum());
-            dto.setDate(commande.getDate());
-            dto.setUsername(commande.getUsername());
-            dto.setSessionNom(commande.getSessionNom());
-
-            List<LigneCmdDto> lignesDTO = commande.getLignes().stream().map(ligne -> {
-                LigneCmdDto ligneDto = new LigneCmdDto();
-                ligneDto.setType(ligne.getType());
-                ligneDto.setNomSandwich(ligne.getNomSandwich());
-                ligneDto.setDescription(ligne.getDescription());
-                ligneDto.setPrix(BigDecimal.valueOf(ligne.getPrix()));
-                return ligneDto;
-            }).collect(Collectors.toList());
-            dto.setSandwiches(lignesDTO);
+            List<LigneCmdDto> lignesDTO = commande.getLignes().stream().map(ligne -> new LigneCmdDto(
+                    ligne.getNomSandwich(),
+                    ligne.getDescription(),
+                    BigDecimal.valueOf(ligne.getPrix())
+            )).collect(Collectors.toList());
 
             BigDecimal total = lignesDTO.stream()
-                    .map(LigneCmdDto::getPrix)
+                    .map(LigneCmdDto::prix)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
-            dto.setTotal(total);
 
-            return dto;
+            return new ListCmdSessionDto(
+                    commande.getNum(),
+                    commande.getDate(),
+                    commande.getUsername(),
+                    commande.getSessionNom(),
+                    lignesDTO,
+                    total
+            );
         }).collect(Collectors.toList());
     }
+
 }

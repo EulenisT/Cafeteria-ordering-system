@@ -5,6 +5,7 @@ import org.isfce.pid.dao.ISaucesDao;
 import org.isfce.pid.model.Sauces;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,13 +42,15 @@ public class SaucesController {
         return new ResponseEntity<>(dao.saucesDiponibles(dispo), HttpStatus.OK);
     }
 
-    @PostMapping(path = "/add", consumes = "application/json") // précise le format du cours
-    public ResponseEntity<Sauces> addGarniture(@Valid @RequestBody Sauces sauces) {
+    @PostMapping(path = "/add", consumes = "application/json")
+    @PreAuthorize("hasAnyRole('CAFET','ADMIN')")
+    public ResponseEntity<Sauces> addSauces(@Valid @RequestBody Sauces sauces) {
         sauces = dao.save(sauces);
         return ResponseEntity.ok(sauces);
     }
 
     @DeleteMapping("/{code}/delete")
+    @PreAuthorize("hasAnyRole('CAFET','ADMIN')")
     public ResponseEntity<String> deleteSauces(@PathVariable("code") String code) {
         if (dao.existsById(code)) {
             dao.deleteById(code);
@@ -60,6 +63,7 @@ public class SaucesController {
      * Méthode PUT pour mettre à jour la disponibilité d’une sauce.
      */
     @PutMapping("/{code}/disponible")
+    @PreAuthorize("hasAnyRole('CAFET','ADMIN')")
     public ResponseEntity<Sauces> mettreAJourDisponibiliteSauce(
             @PathVariable("code") String code,
             @RequestParam("disponible") boolean disponible) {
