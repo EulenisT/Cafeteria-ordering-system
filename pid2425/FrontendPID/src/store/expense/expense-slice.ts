@@ -33,15 +33,18 @@ export const expenseSlice = createSlice({
     setCurrentUser: (state, action: PayloadAction<string>) => {
       state.currentUser = action.payload;
       if (!state.carts[action.payload]) {
-        state.carts[action.payload] = { personalizedSandwiches: [], personalizedCount: 0 };
+        state.carts[action.payload] = {
+          personalizedSandwiches: [],
+          personalizedCount: 0,
+        };
       }
     },
     setBalanceUser: (state, action: PayloadAction<number>) => {
       state.balanceUser = action.payload;
     },
     addPersonalizedSandwich: (
-        state,
-        action: PayloadAction<Omit<PersonalizedSandwich, "id">>
+      state,
+      action: PayloadAction<Omit<PersonalizedSandwich, "id">>,
     ) => {
       if (state.currentUser) {
         const userCart = state.carts[state.currentUser];
@@ -55,15 +58,19 @@ export const expenseSlice = createSlice({
     },
     clearCart: (state) => {
       if (state.currentUser) {
-        state.carts[state.currentUser] = { personalizedSandwiches: [], personalizedCount: 0 };
+        state.carts[state.currentUser] = {
+          personalizedSandwiches: [],
+          personalizedCount: 0,
+        };
       }
     },
     removeFromCart: (state, action: PayloadAction<{ id?: number }>) => {
       if (state.currentUser && action.payload.id) {
-        state.carts[state.currentUser].personalizedSandwiches =
-            state.carts[state.currentUser].personalizedSandwiches.filter(
-                (sandwich) => sandwich.id !== action.payload.id,
-            );
+        state.carts[state.currentUser].personalizedSandwiches = state.carts[
+          state.currentUser
+        ].personalizedSandwiches.filter(
+          (sandwich) => sandwich.id !== action.payload.id,
+        );
       }
     },
   },

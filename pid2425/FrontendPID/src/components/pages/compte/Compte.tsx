@@ -30,8 +30,11 @@ function Compte() {
     fetchUserInfo();
   }, []);
 
-  if (loading) return <LoadingSpinner/>;
-  if (error) return <p>Erreur lors de l’obtention des informations utilisateur : {error}</p>;
+  if (loading) return <LoadingSpinner />;
+  if (error)
+    return (
+      <p>Erreur lors de l’obtention des informations utilisateur : {error}</p>
+    );
   if (!user) return <p>Aucune information sur l’utilisateur</p>;
 
   return (
