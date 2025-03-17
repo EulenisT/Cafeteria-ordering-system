@@ -1,11 +1,14 @@
 package org.isfce.pid.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 import org.isfce.pid.model.Commande;
+import org.isfce.pid.model.dto.ListCmdSessionDto;
 import org.isfce.pid.service.CommandeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -20,10 +23,16 @@ public class CommandeController {
     /**
      * Crée une nouvelle commande.
      */
+
     @PostMapping
-    public ResponseEntity<Commande> createCommande(@RequestBody Commande commande) {
-        Commande savedCommande = commandeService.saveCommande(commande);
-        return ResponseEntity.ok(savedCommande);
+    public ResponseEntity<?> createCommande(@RequestBody Commande commande) {
+        try {
+            Commande savedCommande = commandeService.saveCommande(commande);
+            return ResponseEntity.ok(savedCommande);
+        } catch (RuntimeException ex) {
+            // Si la limite de 3 commandes est dépassée, une Bad Request avec le message d’erreur est retournée.
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
     }
 
     /**
@@ -54,4 +63,13 @@ public class CommandeController {
         List<Commande> commandes = commandeService.getAllCommandesBySession(sessionNom);
         return ResponseEntity.ok(commandes);
     }
+
+    @GetMapping("/session/{sessionNom}/{date}")
+    @PreAuthorize("hasAnyRole('CAFET','ADMIN')")
+    public ResponseEntity<List<ListCmdSessionDto>> getCommandesBySessionAndDate(@PathVariable String sessionNom,
+                                                                                @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        List<ListCmdSessionDto> commandes = commandeService.getCommandesBySessionAndDate(sessionNom, date);
+        return ResponseEntity.ok(commandes);
+    }
+
 }

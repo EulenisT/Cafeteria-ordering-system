@@ -9,5 +9,6 @@ import java.util.List;
 public interface ICommandeDao extends JpaRepository<Commande, Integer> {
 
     List<Commande> findBySessionNom(String sessionNom);
+
     List<Commande> findBySessionNomAndDate(String sessionNom, LocalDate date);
 }

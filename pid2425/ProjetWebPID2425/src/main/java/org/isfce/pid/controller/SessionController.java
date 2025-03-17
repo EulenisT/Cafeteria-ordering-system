@@ -1,13 +1,11 @@
 package org.isfce.pid.controller;
 
-import java.util.List;
 import org.isfce.pid.model.Session;
 import org.isfce.pid.service.SessionService;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/sessions")
@@ -19,34 +17,60 @@ public class SessionController {
         this.sessionService = sessionService;
     }
 
+    @GetMapping
+    public List<Session> getAllSessions() {
+        return sessionService.getSessions();
+    }
+
     @GetMapping("/active")
     public List<Session> getActiveSessions() {
         return sessionService.getActiveSession();
     }
 
-    @GetMapping("/all")
-    public List<Session> getToutesSessions() {
-        return sessionService.getToutesSessions();
+    @PostMapping("/{name}/activate")
+    public ResponseEntity<Session> activateSession(@PathVariable("name") String name) {
+        Session session = findSession(name);
+        if (session != null) {
+            session.setActive();
+            return ResponseEntity.ok(session);
+        }
+        return ResponseEntity.notFound().build();
     }
 
-
-    @GetMapping("/open/{sessionNom}")
-    @PreAuthorize("hasAnyRole('CAFET','ADMIN')")
-    public String openSessionManually(@PathVariable String sessionNom) {
-        return sessionService.openSessionManually(sessionNom);
+    @PostMapping("/{name}/force-open")
+    public ResponseEntity<Session> forceOpenSession(@PathVariable("name") String name) {
+        Session session = findSession(name);
+        if (session != null) {
+            session.forceOuvrir();
+            return ResponseEntity.ok(session);
+        }
+        return ResponseEntity.notFound().build();
     }
 
-
-    @GetMapping("/cloturer/{sessionNom}")
-    @PreAuthorize("hasAnyRole('CAFET','ADMIN')")
-    public String cloturerSessionManually(@PathVariable String sessionNom) {
-        return sessionService.cloturerSessionManually(sessionNom);
+    @PostMapping("/{name}/force-close")
+    public ResponseEntity<Session> forceCloseSession(@PathVariable("name") String name) {
+        Session session = findSession(name);
+        if (session != null) {
+            session.forceCloturer();
+            return ResponseEntity.ok(session);
+        }
+        return ResponseEntity.notFound().build();
     }
 
+    @PostMapping("/{name}/force-finalize")
+    public ResponseEntity<Session> forceFinalizeSession(@PathVariable("name") String name) {
+        Session session = findSession(name);
+        if (session != null) {
+            session.forceFermer();
+            return ResponseEntity.ok(session);
+        }
+        return ResponseEntity.notFound().build();
+    }
 
-    @GetMapping("/fermer/{sessionNom}")
-    @PreAuthorize("hasAnyRole('CAFET','ADMIN')")
-    public String fermerSessionManually(@PathVariable String sessionNom) {
-        return sessionService.fermerSessionManually(sessionNom);
+    private Session findSession(String name) {
+        return sessionService.getSessions().stream()
+                .filter(s -> s.getNom().equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
     }
 }

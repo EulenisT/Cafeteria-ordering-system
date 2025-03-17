@@ -42,6 +42,16 @@ public class CommandeService {
         if (currentUserName == null || currentUserName.isEmpty()) {
             throw new RuntimeException("Le nom de l'utilisateur ne peut être vide");
         }
+
+        // Vérifier le nombre de commandes déjà passées par l'user dans la session active pour le jour actuel
+        List<Commande> commandesSession = commandeDao.findBySessionNomAndDate(session.getNom(), LocalDate.now());
+        List<Commande> commandesUser = commandesSession.stream()
+                .filter(cmd -> currentUserName.equals(cmd.getUsername()))
+                .toList();
+        if (commandesUser.size() >= 3) {
+            throw new RuntimeException("Vous avez déjà atteint le nombre maximum de commandes pour cette session aujourd'hui");
+        }
+
         commande.setUsername(currentUserName);
 
         if (commande.getLignes() != null) {
@@ -49,6 +59,7 @@ public class CommandeService {
         }
         return commandeDao.save(commande);
     }
+
 
     private String getCurrentUserName() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
