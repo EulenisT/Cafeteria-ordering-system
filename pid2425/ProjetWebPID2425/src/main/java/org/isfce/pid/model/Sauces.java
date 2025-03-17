@@ -1,9 +1,8 @@
 package org.isfce.pid.model;
 
 import jakarta.persistence.Entity;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 
 @Entity(name = "TSAUCES")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -12,5 +11,4 @@ public class Sauces extends Article {
 	public Sauces(String code, String nom, boolean dispo) {
 		super(code, nom, dispo);
 	}
-
 }

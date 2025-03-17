@@ -4,6 +4,7 @@ import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
+import LoadingSpinner from "../../loadingSpinner/LoadingSpinner.tsx";
 
 function Compte() {
   const [user, setUser] = useState<{
@@ -20,7 +21,7 @@ function Compte() {
         const userData = await getUserInfo();
         setUser(userData);
       } catch (err) {
-        setError("Error...");
+        setError("Erreur lors de l’obtention des informations utilisateur. ");
       } finally {
         setLoading(false);
       }
@@ -29,9 +30,12 @@ function Compte() {
     fetchUserInfo();
   }, []);
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
-  if (!user) return <p>Not information about the user</p>;
+  if (loading) return <LoadingSpinner />;
+  if (error)
+    return (
+      <p>Erreur lors de l’obtention des informations utilisateur : {error}</p>
+    );
+  if (!user) return <p>Aucune information sur l’utilisateur</p>;
 
   return (
     <Box
@@ -66,7 +70,7 @@ function Compte() {
               fontFamily: "Cursive, sans-serif",
             }}
           >
-            <strong>Nom d'utilisateur:</strong> {user.username}
+            <strong>Mon prenom:</strong> {user.username}
           </Typography>
           <Typography
             variant="body1"
@@ -83,7 +87,7 @@ function Compte() {
               fontFamily: "Cursive, sans-serif",
             }}
           >
-            <strong>Saldo:</strong> {user.solde}€
+            <strong>Solde:</strong> {user.solde.toFixed(2)}€
           </Typography>
         </CardContent>
       </Card>

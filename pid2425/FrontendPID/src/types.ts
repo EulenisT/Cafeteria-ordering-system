@@ -9,6 +9,7 @@ export type GarnitureResponse = {
   code: string;
   nom: string;
   disponible: boolean;
+  prix: number;
 };
 
 export type UserResponse = {
@@ -21,4 +22,28 @@ export type SaucesResponse = {
   code: string;
   nom: string;
   disponible: boolean;
+  prix: number;
+};
+
+export type LigneCmdResponse = {
+  num: number;
+  nomSandwich: string;
+  description: string | null;
+  prix: number;
+};
+
+export type CommandeResponse = {
+  num: number;
+  date: string;
+  sessionNom: string;
+  username: string;
+  lignes: LigneCmdResponse[];
+};
+
+export type SessionResponse = {
+  num: number;
+  active: boolean;
+  heure_cloture: number;
+  nom: string;
+  etat: string;
 };

@@ -5,15 +5,9 @@ import org.isfce.pid.dao.ISaucesDao;
 import org.isfce.pid.model.Sauces;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
@@ -48,13 +42,15 @@ public class SaucesController {
         return new ResponseEntity<>(dao.saucesDiponibles(dispo), HttpStatus.OK);
     }
 
-    @PostMapping(path = "/add", consumes = "application/json") // précise le format du cours
-    public ResponseEntity<Sauces> addGarniture(@Valid @RequestBody Sauces sauces) {
+    @PostMapping(path = "/add", consumes = "application/json")
+    @PreAuthorize("hasAnyRole('CAFET','ADMIN')")
+    public ResponseEntity<Sauces> addSauces(@Valid @RequestBody Sauces sauces) {
         sauces = dao.save(sauces);
         return ResponseEntity.ok(sauces);
     }
 
     @DeleteMapping("/{code}/delete")
+    @PreAuthorize("hasAnyRole('CAFET','ADMIN')")
     public ResponseEntity<String> deleteSauces(@PathVariable("code") String code) {
         if (dao.existsById(code)) {
             dao.deleteById(code);
@@ -63,10 +59,31 @@ public class SaucesController {
             return new ResponseEntity<>(code, HttpStatus.NOT_FOUND);
     }
 
+    /**
+     * Méthode PUT pour mettre à jour la disponibilité d’une sauce.
+     */
+    @PutMapping("/{code}/disponible")
+    @PreAuthorize("hasAnyRole('CAFET','ADMIN')")
+    public ResponseEntity<Sauces> mettreAJourDisponibiliteSauce(
+            @PathVariable("code") String code,
+            @RequestParam("disponible") boolean disponible) {
+
+        Optional<Sauces> oSauce = dao.findById(code);
+        if (oSauce.isPresent()) {
+            Sauces sauce = oSauce.get();
+            sauce.setDisponible(disponible);
+            dao.save(sauce);
+            return ResponseEntity.ok(sauce);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     //test pour voir la personne authentifiée
     @GetMapping("/demo")
     public Authentication demo(Authentication a) {
         return a;
     }
+
 
 }
