@@ -1,39 +1,39 @@
-package
-org.isfce.pid.model;
+package org.isfce.pid.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "TLIGNE_CMD")
 public class LigneCmd {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer num;
-	@ManyToOne()
-	@JoinColumn(name = "FKCommande", nullable = false)
+
+	@ManyToOne
+	@JoinColumn(name = "FK_COMMANDE", nullable = false)
+	@JsonBackReference
 	private Commande cmd;
-	private String article;
-	private int qt;
-	
-	public LigneCmd(Commande cmd, String article, int qt) {
-		super();
+
+	@Column(name = "NOM_SANDWICH", nullable = false)
+	private String nomSandwich;
+
+	@Column(name = "DESCRIPTION")
+	private String description;
+
+	@Column(name = "PRIX", nullable = false)
+	private Double prix;
+
+	public LigneCmd(Commande cmd, String nomSandwich,String description, Double prix) {
 		this.cmd = cmd;
-		this.article = article;
-		this.qt = qt;
+		this.nomSandwich = nomSandwich;
+		this.description = description;
+		this.prix = prix;
 	}
-	
-	
+
 }

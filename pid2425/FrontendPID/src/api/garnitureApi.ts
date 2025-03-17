@@ -4,7 +4,7 @@ import keycloak from "../keycloak/keycloak.ts";
 
 export const getGarniture = async (): Promise<GarnitureResponse[]> => {
   if (!keycloak.token) {
-    throw new Error("Not token");
+    throw new Error("Token non disponible");
   }
 
   const response = await axios.get(

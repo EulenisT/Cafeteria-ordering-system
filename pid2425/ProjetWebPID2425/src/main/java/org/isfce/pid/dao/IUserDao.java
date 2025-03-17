@@ -15,6 +15,10 @@ public interface IUserDao extends JpaRepository<User, String> {
 	@NativeQuery("update TUSER u set u.solde = u.solde + :montant where u.username= :user")
 	void crediterUser(@Param("user") String username, @Param("montant") Double montant);
 
+	@Modifying
+	@NativeQuery("update TUSER u set u.solde = u.solde - :montant where u.username = :user")
+	void debiterUser(@Param("user") String username, @Param("montant") Double montant);
+
 	@Query("select u.solde from TUSER u where u.username=?1")
 	Double soldeByUsername(String username);
 
