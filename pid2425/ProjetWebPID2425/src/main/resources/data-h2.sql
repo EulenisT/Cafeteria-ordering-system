@@ -1,5 +1,5 @@
 Merge into TARTICLE(CODE,NOM,DISPONIBLE) values
-('BOUL','Boulette',true),
+('BOUL','Boulette',false),
 ('POUL','Poulet Curry',true),
 ('JBFR','Jambon Fromage',true),
 ('FROM','Fromage',true),
@@ -32,7 +32,7 @@ MERGE into TSAUCES(CODE) values
 ('MT'),
 ('BZ');
 
-MERGE into TUSER(username,email,nom,prenom,solde) values
-('dvo','vo@isfce.be','VO','Didier',100.0),
-('et1','et1@isfce.be','Nom Et1','Prénom Et1',150.3),
-('val','val@isfce.be','DeLaCafet','Valeri',10.0);
+-- MERGE into TUSER(username,email,nom,prenom,solde) values
+-- ('dvo','vo@isfce.be','VO','Didier',100.0),
+-- ('et1','et1@isfce.be','Nom Et1','Prénom Et1',150.3),
+-- ('val','val@isfce.be','DeLaCafet','Valeri',10.0);

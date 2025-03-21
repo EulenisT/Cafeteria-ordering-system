@@ -12,6 +12,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/commandes")
@@ -30,7 +31,6 @@ public class CommandeController {
             Commande savedCommande = commandeService.saveCommande(commande);
             return ResponseEntity.ok(savedCommande);
         } catch (RuntimeException ex) {
-            // Si la limite de 3 commandes est dépassée, une Bad Request avec le message d’erreur est retournée.
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
@@ -70,6 +70,19 @@ public class CommandeController {
                                                                                 @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         List<ListCmdSessionDto> commandes = commandeService.getCommandesBySessionAndDate(sessionNom, date);
         return ResponseEntity.ok(commandes);
+    }
+
+    /**
+     * Supprime une commande.
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteCommande(@PathVariable Integer id) {
+        try {
+            commandeService.deleteCommande(id);
+            return ResponseEntity.ok().build();
+        } catch (ResponseStatusException ex) {
+            return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
+        }
     }
 
 }

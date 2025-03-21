@@ -29,7 +29,6 @@ export const expenseSlice = createSlice({
   name: "expenseSlice",
   initialState,
   reducers: {
-    // Al establecer el usuario actual, se inicializa su carrito si no existe.
     setCurrentUser: (state, action: PayloadAction<string>) => {
       state.currentUser = action.payload;
       if (!state.carts[action.payload]) {

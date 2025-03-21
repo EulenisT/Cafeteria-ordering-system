@@ -30,7 +30,7 @@ public class Commande {
 	@Column(name = "USERNAME", nullable = false)
 	private String username;
 
-	@OneToMany(cascade = CascadeType.PERSIST, mappedBy = "cmd", fetch = FetchType.EAGER)
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "cmd", fetch = FetchType.EAGER)
 	private List<LigneCmd> lignes = new ArrayList<>();
 
 	public Commande(LocalDate date, String sessionNom, String username) {

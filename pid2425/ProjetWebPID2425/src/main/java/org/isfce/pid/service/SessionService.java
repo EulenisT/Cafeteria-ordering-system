@@ -4,6 +4,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.annotation.PostConstruct;
 import org.isfce.pid.model.Session;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -43,6 +44,19 @@ public class SessionService {
     }
 
     /**
+     * Au démarrage de l’application, les sessions sont activées
+     */
+
+    @PostConstruct
+    public void initSessions() {
+        sessions.forEach(session -> {
+            session.setActive();
+            session.ouvrir();
+        });
+        log.info("Sessions initialisées: " + sessions);
+    }
+
+    /**
      * Retourne les sessions actives
      *
      * @return
@@ -56,8 +70,12 @@ public class SessionService {
      */
     @Scheduled(cron = "${cafet.session.activate.on-time}")
     private void activateSession() {
-        sessions.forEach((s) -> s.ouvrir());
+        sessions.forEach((s) -> {
+            s.setActive(); // Activer la session
+            s.ouvrir();    // Tente de l’ouvrir si la condition est remplie (heure < heureCloture)
+        });
     }
+
 
     /**
      * cloture la session du matin

@@ -32,3 +32,14 @@ export const postCommande = async (commandePayload: any): Promise<any> => {
   );
   return response.data;
 };
+
+export const deleteCommande = async (id: number): Promise<void> => {
+  if (!keycloak.token) {
+    throw new Error("Token non disponible");
+  }
+  await axios.delete(`${import.meta.env.VITE_API_URL}/api/commandes/${id}`, {
+    headers: {
+      Authorization: `Bearer ${keycloak.token}`,
+    },
+  });
+};
