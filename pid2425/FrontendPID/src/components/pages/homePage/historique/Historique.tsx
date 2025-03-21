@@ -3,6 +3,7 @@ import {
   Card,
   CardHeader,
   CardContent,
+  CardActions,
   Typography,
   Divider,
   List,
@@ -13,12 +14,20 @@ import {
   Button,
 } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { CommandeResponse, UserResponse } from "../../../../types";
-import { getCommandes } from "../../../../api/commandeApi";
+import {
+  CommandeResponse,
+  SessionResponse,
+  UserResponse,
+} from "../../../../types";
+import { getCommandes, deleteCommande } from "../../../../api/commandeApi";
 import { getUserInfo } from "../../../../api/userApi";
-import { addPersonalizedSandwich } from "../../../../store/expense/expense-slice";
+import {
+  addPersonalizedSandwich,
+  setBalanceUser,
+} from "../../../../store/expense/expense-slice";
 import { useQuery } from "@tanstack/react-query";
 import LoadingSpinner from "../../../loadingSpinner/LoadingSpinner.tsx";
+import { getSessions } from "../../../../api/sessionApi.ts";
 
 export function Historique() {
   const [commandes, setCommandes] = useState<CommandeResponse[]>([]);
@@ -27,10 +36,16 @@ export function Historique() {
   const [selectedCommandes, setSelectedCommandes] = useState<number[]>([]);
   const dispatch = useDispatch();
 
-  //  Informations de l’utilisateur
+  // Informations de l'utilisateur
   const { data: userInfo, isLoading: userLoading } = useQuery<UserResponse>({
     queryKey: ["userInfo"],
     queryFn: getUserInfo,
+  });
+
+  // Informations de session
+  const { data: sessions } = useQuery<SessionResponse[]>({
+    queryKey: ["sessions"],
+    queryFn: getSessions,
   });
 
   useEffect(() => {
@@ -111,6 +126,18 @@ export function Historique() {
     setSelectedCommandes([]);
   };
 
+  // Annuler une commande
+  const handleDelete = async (commandeNum: number) => {
+    try {
+      await deleteCommande(commandeNum);
+      setCommandes((prev) => prev.filter((c) => c.num !== commandeNum));
+      const userData = await getUserInfo();
+      dispatch(setBalanceUser(userData.solde));
+    } catch (error) {
+      console.error("Erreur lors de la suppression de la commande:", error);
+    }
+  };
+
   return (
     <Box sx={{ marginBottom: "100px" }}>
       <Container sx={{ marginTop: 6 }}>
@@ -128,11 +155,26 @@ export function Historique() {
           Historique des dernières commandes
         </Typography>
         {lastThree.map((commande) => {
+          console.log("Commande:", commande);
+
           const totalPrice = commande.lignes.reduce(
             (acc, ligne) => acc + ligne.prix,
             0,
           );
           const isSelected = selectedCommandes.includes(commande.num);
+
+          // Session correspondant à la commande en comparant le nom
+          const session = sessions?.find(
+            (s) => s.nom.toUpperCase() === commande.sessionNom.toUpperCase(),
+          );
+          //  Vérifie si la commande est d’aujourd’hui
+          const isTodayCommande =
+            new Date(commande.date).toLocaleDateString() ===
+            new Date().toLocaleDateString();
+          // Le bouton est désactivé si la session existe et son état n’est pas "OUVERTE"
+          const disabledButton = session
+            ? session.etat.toUpperCase() !== "OUVERTE" || !isTodayCommande
+            : false;
 
           return (
             <Card
@@ -187,6 +229,31 @@ export function Historique() {
                   Total: {totalPrice.toFixed(2)} €
                 </Typography>
               </CardContent>
+              <CardActions
+                sx={{ justifyContent: "center", marginBottom: "10px" }}
+              >
+                <Button
+                  variant="contained"
+                  disabled={disabledButton}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(commande.num);
+                  }}
+                  sx={{
+                    backgroundColor: "#E1B0AC",
+                    color: "white",
+                    "&:hover": {
+                      backgroundColor: "#d89aa0",
+                    },
+                    "&.Mui-disabled": {
+                      backgroundColor: "lightgray",
+                      color: "white",
+                    },
+                  }}
+                >
+                  Annuler
+                </Button>
+              </CardActions>
             </Card>
           );
         })}

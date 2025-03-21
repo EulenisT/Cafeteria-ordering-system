@@ -162,9 +162,7 @@ const NavBar = () => {
             ))}
           </List>
           <ListItem disablePadding>
-            <ListItemButton onClick={() => toggleDrawer(false)}>
-              <LogoutButton sx={{ ...commonDrawerTextStyles }} />
-            </ListItemButton>
+            <LogoutButton sx={{ ...commonDrawerTextStyles }} />
           </ListItem>
         </Box>
       </Drawer>
