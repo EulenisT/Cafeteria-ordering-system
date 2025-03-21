@@ -1,5 +1,5 @@
 Merge into TARTICLE(CODE,NOM,DISPONIBLE) values
-('BOUL','Boulette',true),
+('BOUL','Boulette',false),
 ('POUL','Poulet Curry',true),
 ('JBFR','Jambon Fromage',true),
 ('FROM','Fromage',true),

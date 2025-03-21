@@ -338,7 +338,7 @@ import {
   SaucesResponse,
 } from "../../../types.ts";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../../store/store"; // Asegúrate de tener tu tipo RootState
+import { RootState } from "../../../store/store";
 import { addPersonalizedSandwich } from "../../../store/expense/expense-slice.ts";
 
 import {
@@ -612,7 +612,13 @@ export default function Sandwichs() {
                 border: "none",
                 backgroundColor: "transparent",
                 transition: "background-color 0.3s ease",
-                "&:hover": { backgroundColor: "#F8E7E3" },
+                "&:hover": {
+                  backgroundColor: sandwich.disponible
+                    ? "#F8E7E3"
+                    : "transparent",
+                },
+                opacity: sandwich.disponible ? 1 : 0.5,
+                pointerEvents: sandwich.disponible ? "auto" : "none",
               }}
             >
               <CardActionArea onClick={() => handleCardClick(sandwich)}>

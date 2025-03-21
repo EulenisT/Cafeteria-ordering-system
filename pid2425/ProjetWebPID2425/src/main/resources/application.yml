@@ -55,4 +55,5 @@ cafet:
     apm:
       stop-time: "0 30 14 * * 1-5"
     soir:
-      stop-time: "0 30 19 * * 1-5"
+      stop-time: "0 0 22 * * 1-5"
+#      stop-time: "0 30 19 * * 1-5"
