@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -26,10 +28,10 @@ public class LigneCmd {
 	@Column(name = "DESCRIPTION")
 	private String description;
 
-	@Column(name = "PRIX", nullable = false)
-	private Double prix;
+	@Column(name = "PRIX", nullable = false, precision = 8, scale = 2)
+	private BigDecimal prix;
 
-	public LigneCmd(Commande cmd, String nomSandwich,String description, Double prix) {
+	public LigneCmd(Commande cmd, String nomSandwich,String description, BigDecimal prix) {
 		this.cmd = cmd;
 		this.nomSandwich = nomSandwich;
 		this.description = description;

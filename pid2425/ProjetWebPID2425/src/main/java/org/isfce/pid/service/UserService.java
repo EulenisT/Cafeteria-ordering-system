@@ -1,5 +1,6 @@
 package org.isfce.pid.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.ws.rs.core.Response;
@@ -102,7 +103,8 @@ public class UserService {
 				registrationDto.email(),
 				registrationDto.nom(),
 				registrationDto.prenom(),
-				0.0
+				0.0,
+				new ArrayList<>()
 		);
 		return daoUser.save(newUser);
 	}

@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.isfce.pid.model.Commande;
 import org.isfce.pid.model.Session;
 import org.isfce.pid.dao.ICommandeDao;
+import org.isfce.pid.model.User;
 import org.isfce.pid.model.dto.LigneCmdDto;
 import org.isfce.pid.model.dto.ListCmdSessionDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,17 +49,20 @@ public class CommandeService {
             throw new RuntimeException("Le nom de l'utilisateur ne peut être vide");
         }
 
+        User user = userService.getUserById(currentUserName)
+                .orElseThrow(() -> new RuntimeException("User not found: " + currentUserName));
+
         // Vérifier le nombre de commandes déjà passées par l'user dans la session active pour le jour actuel
         List<Commande> commandesSession = commandeDao.findBySessionNomAndDate(session.getNom(), LocalDate.now());
         List<Commande> commandesUser = commandesSession.stream()
                 .filter(cmd -> cmd.getDate().isEqual(LocalDate.now()))
-                .filter(cmd -> currentUserName.equals(cmd.getUsername()))
+                .filter(cmd -> currentUserName.equals(cmd.getUser().getUsername()))
                 .toList();
         if (commandesUser.size() >= 3) {
             throw new RuntimeException("Vous avez déjà atteint le nombre maximum de commandes pour cette session aujourd'hui");
         }
 
-        commande.setUsername(currentUserName);
+        commande.setUser(user);
 
         if (commande.getLignes() != null) {
             commande.getLignes().forEach(ligne -> ligne.setCmd(commande));
@@ -91,7 +95,7 @@ public class CommandeService {
             List<LigneCmdDto> lignesDTO = commande.getLignes().stream().map(ligne -> new LigneCmdDto(
                     ligne.getNomSandwich(),
                     ligne.getDescription(),
-                    BigDecimal.valueOf(ligne.getPrix())
+                    ligne.getPrix()
             )).collect(Collectors.toList());
 
             BigDecimal total = lignesDTO.stream()
@@ -102,17 +106,13 @@ public class CommandeService {
             return new ListCmdSessionDto(
                     commande.getNum(),
                     commande.getDate(),
-                    commande.getUsername(),
+                    commande.getUser().getUsername(),
                     commande.getSessionNom(),
                     lignesDTO,
                     total
             );
         }).collect(Collectors.toList());
     }
-
-
-
-
 
 
     // Verifica si la commande se puede eliminar (solo si la sesión asociada está en estado OUVERTE)
@@ -146,10 +146,10 @@ public class CommandeService {
         }
         // Calcular el total a reembolsar
         BigDecimal total = commande.getLignes().stream()
-                .map(ligne -> BigDecimal.valueOf(ligne.getPrix()))
+                .map(ligne -> ligne.getPrix())
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         // Procesar el reembolso
-        refund(commande.getUsername(), total);
+        refund(commande.getUser().getUsername(), total);
         // Eliminar la commande
         commandeDao.delete(commande);
     }

@@ -1,8 +1,7 @@
 package org.isfce.pid.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -11,6 +10,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity(name = "TUSER")
 @AllArgsConstructor
@@ -33,6 +35,10 @@ public class User {
 	private String prenom;
 	@Column
 	private Double solde;
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonIgnore
+	private List<Commande> commandes = new ArrayList<>();
 
 	public Double crediter(Double montant) {
 		assert montant >= 0 : "Le montant doit être positif";

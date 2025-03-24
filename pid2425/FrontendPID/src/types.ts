@@ -36,7 +36,7 @@ export type CommandeResponse = {
   num: number;
   date: string;
   sessionNom: string;
-  username: string;
+  user: UserResponse;
   lignes: LigneCmdResponse[];
 };
 

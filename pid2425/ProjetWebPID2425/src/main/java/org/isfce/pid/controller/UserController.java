@@ -1,5 +1,6 @@
 package org.isfce.pid.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.isfce.pid.model.User;
 import org.isfce.pid.model.dto.UserDto;
@@ -51,7 +52,7 @@ public class UserController {
 			String email = token.getClaimAsString("email");
 			String nom = token.getClaimAsString("family_name");
 			String prenom = token.getClaimAsString("given_name");
-			u = userService.addUser(new User(username, email, nom, prenom, 0.0));
+			u = userService.addUser(new User(username, email, nom, prenom, 0.0, new ArrayList<>()));
 		}
 		userDto = new UserDto(username, u.getEmail(), u.getSolde());
 		return ResponseEntity.ok(userDto);
