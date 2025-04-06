@@ -9,6 +9,8 @@ spring:
   profiles:
     active:
       - dev
+  cache:
+    type: simple
 ---
 spring:
   config:

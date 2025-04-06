@@ -2,6 +2,7 @@ package org.isfce.pid.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "TCOMMANDE")
@@ -19,7 +21,7 @@ public class Commande {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "CODE")
+	@Column(name = "NUM")
 	private Integer num;
 
 	@Column(name = "DATE", nullable = false)
@@ -29,16 +31,11 @@ public class Commande {
 	private String sessionNom;
 
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "USERNAME", referencedColumnName = "username")
+	@JoinColumn(name = "USERNAME", referencedColumnName = "USER_NAME")
 	private User user;
 
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "cmd", fetch = FetchType.EAGER)
 	@JsonManagedReference
 	private List<LigneCmd> lignes = new ArrayList<>();
 
-	public Commande(LocalDate date, String sessionNom, String username) {
-		this.date = date;
-		this.sessionNom = sessionNom;
-		this.user = user;
-	}
 }

@@ -1,5 +1,6 @@
 package org.isfce.pid.controller;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import org.isfce.pid.model.User;
@@ -26,10 +27,10 @@ public class UserController {
 
 	@PostMapping(path = "/incsolde")
 	@PreAuthorize("hasAnyRole('CAFET','ADMIN')")
-	public ResponseEntity<Double> updateSolde(@RequestParam("username") String username,
-											  @RequestParam("montant") Double montant) {
+	public ResponseEntity<BigDecimal> updateSolde(@RequestParam("username") String username,
+											  @RequestParam("montant") BigDecimal montant) {
 		log.info("Crediter: " + username + " montant: " + montant);
-		Double solde = userService.crediterUser(username, montant);
+		BigDecimal solde = userService.crediterUser(username, montant);
 		return ResponseEntity.ok(solde);
 	}
 
@@ -52,17 +53,17 @@ public class UserController {
 			String email = token.getClaimAsString("email");
 			String nom = token.getClaimAsString("family_name");
 			String prenom = token.getClaimAsString("given_name");
-			u = userService.addUser(new User(username, email, nom, prenom, 0.0, new ArrayList<>()));
+			u = userService.addUser(new User(username, email, nom, prenom, BigDecimal.ZERO, new ArrayList<>()));
 		}
 		userDto = new UserDto(username, u.getEmail(), u.getSolde());
 		return ResponseEntity.ok(userDto);
 	}
 
 	@PostMapping(path = "/updatesolde")
-	public ResponseEntity<Double> updateSoldeDes(@RequestParam("username") String username,
-												 @RequestParam("montant") Double montant) {
+	public ResponseEntity<BigDecimal> updateSoldeDes(@RequestParam("username") String username,
+													 @RequestParam("montant") BigDecimal montant) {
 		log.info("Débiter: " + username + " montant: " + montant);
-		Double solde = userService.debiterUser(username, montant);
+		BigDecimal solde = userService.debiterUser(username, montant);
 		return ResponseEntity.ok(solde);
 	}
 

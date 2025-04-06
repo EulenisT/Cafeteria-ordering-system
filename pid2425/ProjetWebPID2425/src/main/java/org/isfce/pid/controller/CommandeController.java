@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.isfce.pid.model.Commande;
+import org.isfce.pid.model.dto.CreateCommandeDto;
 import org.isfce.pid.model.dto.ListCmdSessionDto;
 import org.isfce.pid.service.CommandeService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,22 +18,12 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/api/commandes")
 public class CommandeController {
 
-    @Autowired
     private CommandeService commandeService;
 
-    /**
-     * Crée une nouvelle commande.
-     */
-
-    @PostMapping
-    public ResponseEntity<?> createCommande(@RequestBody Commande commande) {
-        try {
-            Commande savedCommande = commandeService.saveCommande(commande);
-            return ResponseEntity.ok(savedCommande);
-        } catch (RuntimeException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
-        }
+    public CommandeController(CommandeService commandeService) {
+        this.commandeService = commandeService;
     }
+
 
     /**
      * Retourne toutes les commandes.
@@ -70,6 +60,20 @@ public class CommandeController {
                                                                                 @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         List<ListCmdSessionDto> commandes = commandeService.getCommandesBySessionAndDate(sessionNom, date);
         return ResponseEntity.ok(commandes);
+    }
+
+    /**
+     * Crée une nouvelle commande.
+     */
+
+    @PostMapping
+    public ResponseEntity<?> createCommande(@RequestBody CreateCommandeDto createCommandeDto) {
+        try {
+            Commande savedCommande = commandeService.saveCommande(createCommandeDto);
+            return ResponseEntity.ok(savedCommande);
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
     }
 
     /**

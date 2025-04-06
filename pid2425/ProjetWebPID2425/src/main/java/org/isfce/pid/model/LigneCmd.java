@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 
 @Getter
 @Setter
+@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "TLIGNE_CMD")
@@ -15,10 +16,11 @@ public class LigneCmd {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "NUM", nullable = false)
 	private Integer num;
 
 	@ManyToOne
-	@JoinColumn(name = "FK_COMMANDE", nullable = false)
+	@JoinColumn(name = "FK_COMMANDE", referencedColumnName = "NUM", nullable = false)
 	@JsonBackReference
 	private Commande cmd;
 
@@ -28,14 +30,12 @@ public class LigneCmd {
 	@Column(name = "DESCRIPTION")
 	private String description;
 
-	@Column(name = "PRIX", nullable = false, precision = 8, scale = 2)
+	@Column(name = "PRIX", nullable = false, precision = 6, scale = 2)
 	private BigDecimal prix;
 
-	public LigneCmd(Commande cmd, String nomSandwich,String description, BigDecimal prix) {
-		this.cmd = cmd;
-		this.nomSandwich = nomSandwich;
-		this.description = description;
-		this.prix = prix;
-	}
+	@ManyToOne
+	@JoinColumn(name = "FK_ARTICLE", referencedColumnName = "CODE", nullable = false)
+	private Article article;
+
 
 }

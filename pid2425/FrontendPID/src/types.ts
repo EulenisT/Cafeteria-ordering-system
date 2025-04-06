@@ -25,11 +25,19 @@ export type SaucesResponse = {
   prix: number;
 };
 
+export type ArticleResponse = {
+  code: string;
+  nom: string;
+  disponible: boolean;
+  prix: number;
+};
+
 export type LigneCmdResponse = {
   num: number;
   nomSandwich: string;
   description: string | null;
   prix: number;
+  article?: ArticleResponse;
 };
 
 export type CommandeResponse = {

@@ -20,13 +20,13 @@ import lombok.NoArgsConstructor;
 @Data
 public class Article {
 	@Id
-	@Column(length = 4, updatable = false)
+	@Column(name = "CODE", length = 4, updatable = false)
 	@NotBlank
 	private String code;
 
-	@Column(length = 30, nullable = false, updatable = false)
+	@Column(name = "NOM", length = 30, nullable = false, updatable = false)
 	@NotBlank
 	private String nom;
-	@Column
+	@Column(name = "DISPONIBLE")
 	private boolean disponible;
 }

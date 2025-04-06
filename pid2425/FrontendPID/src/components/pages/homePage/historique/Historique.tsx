@@ -114,6 +114,7 @@ export function Historique() {
         commande.lignes.forEach((ligne) => {
           dispatch(
             addPersonalizedSandwich({
+              code: ligne.article ? ligne.article.code : ligne.nomSandwich,
               sandwichName: ligne.nomSandwich,
               sandwichPrice: ligne.prix,
               garnitures: [],
