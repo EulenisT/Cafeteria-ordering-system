@@ -1,10 +1,7 @@
 package org.isfce.pid.model;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.*;
-
-import java.math.BigDecimal;
 
 @Entity(name = "TGARNITURE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

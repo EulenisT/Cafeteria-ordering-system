@@ -114,13 +114,13 @@ export function Panier() {
     }
 
     try {
-      const commandePayload = {
-        lignes: personalizedSandwiches.map((item) => ({
-          nomSandwich: item.sandwichName,
-          description: `Garnitures: ${item.garnitures.join(", ")}; Sauces: ${item.sauces.join(", ")}`,
-          prix: item.sandwichPrice,
-        })),
-      };
+        const commandePayload = {
+                lignesCmd: personalizedSandwiches.map((item) => ({
+                articleCode: item.code,
+                description: `Garnitures: ${item.garnitures.join(", ")}; Sauces: ${item.sauces.join(", ")}`,
+                prix: item.sandwichPrice,
+            })),
+    };
 
       await postCommande(commandePayload);
       const newSolde = await updateUserSolde(username, total);

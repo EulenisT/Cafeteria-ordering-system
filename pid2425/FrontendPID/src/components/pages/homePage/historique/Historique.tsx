@@ -72,7 +72,7 @@ export function Historique() {
   }
 
   const currentUser = userInfo?.username;
-  const userCommandes = commandes.filter((c) => c.username === currentUser);
+  const userCommandes = commandes.filter((c) => c.user?.username === currentUser);
 
   if (userCommandes.length === 0) {
     return (
@@ -114,6 +114,7 @@ export function Historique() {
         commande.lignes.forEach((ligne) => {
           dispatch(
             addPersonalizedSandwich({
+              code: ligne.article ? ligne.article.code : ligne.nomSandwich,
               sandwichName: ligne.nomSandwich,
               sandwichPrice: ligne.prix,
               garnitures: [],
@@ -157,9 +158,9 @@ export function Historique() {
         {lastThree.map((commande) => {
           console.log("Commande:", commande);
 
-          const totalPrice = commande.lignes.reduce(
-            (acc, ligne) => acc + ligne.prix,
-            0,
+          const totalPrice = (commande.lignes ?? []).reduce(
+              (acc, ligne) => acc + ligne.prix,
+              0,
           );
           const isSelected = selectedCommandes.includes(commande.num);
 
@@ -196,7 +197,7 @@ export function Historique() {
               />
               <CardContent>
                 <List>
-                  {commande.lignes.map((ligne) => (
+                  {(commande.lignes ?? []).map((ligne) => (
                     <ListItem key={ligne.num}>
                       <ListItemText
                         primary={ligne.nomSandwich}

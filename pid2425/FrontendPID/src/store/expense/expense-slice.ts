@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface PersonalizedSandwich {
   id: number;
+  code: string;
   sandwichName: string;
   sandwichPrice: number;
   garnitures: string[];
