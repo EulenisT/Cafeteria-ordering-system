@@ -32,7 +32,7 @@ MERGE into TSAUCES(CODE) values
 ('MT'),
 ('BZ');
 
--- MERGE into TUSER(username,email,nom,prenom,solde) values
+-- MERGE into TUSER(USER_NAME,EMAIL,NOM,PRENOM,SOLDE) values
 -- ('dvo','vo@isfce.be','VO','Didier',100.0),
 -- ('et1','et1@isfce.be','Nom Et1','Prénom Et1',150.3),
 -- ('val','val@isfce.be','DeLaCafet','Valeri',10.0);

@@ -23,6 +23,7 @@ public class Sandwiches extends Article {
 
 	@Getter
 	@Setter
-	@Column(precision = 4, scale = 2)
+	@Column(name = "PRIX", precision = 6, scale = 2, nullable = false)
 	private BigDecimal prix;
+
 }

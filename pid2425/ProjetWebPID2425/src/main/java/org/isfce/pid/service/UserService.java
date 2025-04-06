@@ -1,5 +1,7 @@
 package org.isfce.pid.service;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.ws.rs.core.Response;
@@ -27,19 +29,19 @@ public class UserService {
 		this.daoUser = daoUser;
 	}
 
-	public Double crediterUser(String username, Double montant) {
+	public BigDecimal crediterUser(String username, BigDecimal montant) {
 		var oUser = daoUser.findById(username);
 		User user = oUser.orElseThrow(() -> new NotExistException(username));
-		Double solde = user.crediter(montant);
+		BigDecimal solde = user.crediter(montant);
 		daoUser.save(user);
 		return solde;
 	}
 
-	public Double debiterUser(String username, Double montant) {
+	public BigDecimal debiterUser(String username, BigDecimal montant) {
 		var oUser = daoUser.findById(username);
 		User user = oUser.orElseThrow(() -> new NotExistException(username));
-		if (user.getSolde() >= montant) {
-			Double solde = user.debiter(montant);
+		if (user.getSolde().compareTo(montant) >= 0) {
+			BigDecimal solde = user.debiter(montant);
 			daoUser.save(user);
 			return solde;
 		} else {
@@ -102,7 +104,8 @@ public class UserService {
 				registrationDto.email(),
 				registrationDto.nom(),
 				registrationDto.prenom(),
-				0.0
+				BigDecimal.ZERO,
+				new ArrayList<>()
 		);
 		return daoUser.save(newUser);
 	}
