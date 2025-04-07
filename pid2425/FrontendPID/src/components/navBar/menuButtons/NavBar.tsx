@@ -23,6 +23,7 @@ import { getUserInfo } from "../../../api/userApi.ts";
 import { RootState } from "../../../store/store.ts";
 import { setBalanceUser } from "../../../store/expense/expense-slice.ts";
 
+// Styles pour les boutons de la barre de navigation
 const commonStyles = {
   color: "#7D7D7D",
   fontFamily: "cursive, sans-serif",
@@ -30,6 +31,7 @@ const commonStyles = {
   margin: "0 10px",
 };
 
+// Styles pour le texte dans le Drawer (menu latéral)
 const commonDrawerTextStyles = {
   color: "#7D7D7D",
   fontFamily: "cursive, sans-serif",
@@ -38,24 +40,29 @@ const commonDrawerTextStyles = {
 
 const NavBar = () => {
   const dispatch = useDispatch();
+  // Récupère le solde de l'utilisateur depuis le store Redux
   const balanceUser = useSelector(
     (state: RootState) => state.EXPENSE.balanceUser,
   );
+  // État pour contrôler l'ouverture du Drawer (menu mobile)
   const [openDrawer, setOpenDrawer] = useState(false);
   const toggleDrawer = (open: boolean) => setOpenDrawer(open);
+  // Vérifie si l'écran est grand (largeur minimale)
   const isLargeScreen = useMediaQuery("(min-width:1024px)");
 
+  // Ferme le Drawer automatiquement sur les grands écrans
   useEffect(() => {
     if (isLargeScreen) {
       setOpenDrawer(false);
     }
   }, [isLargeScreen]);
 
+  // Récupère les informations de l'utilisateur et met à jour le solde dans Redux
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
         const userData = await getUserInfo();
-        dispatch(setBalanceUser(userData.solde)); // Mettre à jour Redux avec le solde réel
+        dispatch(setBalanceUser(userData.solde)); // Mise à jour du solde dans le store
       } catch (error) {
         console.error(
           "Erreur lors de l’obtention du solde de l’utilisateur : ",
@@ -111,6 +118,7 @@ const NavBar = () => {
           >
             {balanceUser.toFixed(2)} €
           </Typography>
+          {/* Bouton pour ouvrir le Drawer (menu mobile) */}
           <IconButton
             sx={{ display: { xs: "block", md: "none" }, ml: "auto" }}
             onClick={() => toggleDrawer(true)}
@@ -118,6 +126,7 @@ const NavBar = () => {
             <MenuIcon />
           </IconButton>
 
+          {/* Menu de navigation pour grands écrans */}
           <Stack
             direction="row"
             spacing={2}
@@ -133,12 +142,13 @@ const NavBar = () => {
                 {item.text}
               </Button>
             ))}
+            {/* Bouton de déconnexion */}
             <LogoutButton sx={{ ...commonStyles }} />
           </Stack>
         </Toolbar>
       </AppBar>
 
-      {/* Drawer */}
+      {/* Drawer  (menu latéral pour petits écrans) */}
       <Drawer
         anchor="right"
         open={openDrawer}
@@ -161,6 +171,7 @@ const NavBar = () => {
               </ListItem>
             ))}
           </List>
+          {/* Bouton de déconnexion dans le Drawer */}
           <ListItem disablePadding>
             <LogoutButton sx={{ ...commonDrawerTextStyles }} />
           </ListItem>

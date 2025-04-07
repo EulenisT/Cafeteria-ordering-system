@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/admin")
+
 public class ListCmdSessionController {
 
     private final CommandeService commandeService;
@@ -22,6 +23,14 @@ public class ListCmdSessionController {
         this.commandeService = commandeService;
     }
 
+    /**
+     * Récupère les commandes d'une session pour une date donnée.
+     * Accessible aux rôles CAFET et ADMIN.
+     *
+     * @param sessionNom le nom de la session
+     * @param date la date des commandes (format ISO)
+     * @return la liste des commandes correspondant à la session et à la date
+     */
     @GetMapping("/pedidos/session/{sessionNom}/date/{date}")
     @PreAuthorize("hasAnyRole('CAFET','ADMIN')")
     public List<ListCmdSessionDto> getPedidosBySessionAndDate(

@@ -6,6 +6,7 @@ import {
   SnackbarCloseReason,
 } from "@mui/material";
 
+// Composant de transition pour le Snackbar, qui utilise une animation "slide" vers le haut
 const SlideTransition = (props: SlideProps) => {
   return <Slide {...props} direction="up" />;
 };
@@ -18,6 +19,7 @@ interface PaymentErrorProps {
   ) => void;
 }
 
+// Composant qui affiche un Snackbar d'erreur pour les paiements
 const PaymentErrorSnackbar: React.FC<PaymentErrorProps> = ({
   open,
   onClose,

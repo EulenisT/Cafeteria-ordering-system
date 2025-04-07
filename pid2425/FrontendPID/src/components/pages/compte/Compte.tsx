@@ -7,36 +7,46 @@ import Typography from "@mui/material/Typography";
 import LoadingSpinner from "../../loadingSpinner/LoadingSpinner.tsx";
 
 function Compte() {
+  // État pour stocker les informations de l'utilisateur
   const [user, setUser] = useState<{
     username: string;
     email: string;
     solde: number;
   } | null>(null);
+  // État pour stocker un message d'erreur en cas de problème lors de la récupération des données
   const [error, setError] = useState<string | null>(null);
+  // État pour indiquer si le chargement est en cours
   const [loading, setLoading] = useState<boolean>(true);
 
+  // Récupérer les informations de l'utilisateur au montage du composant
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
+        // Appel à l'API pour obtenir les informations de l'utilisateur
         const userData = await getUserInfo();
         setUser(userData);
       } catch (err) {
+        // En cas d'erreur, met à jour l'état d'erreur
         setError("Erreur lors de l’obtention des informations utilisateur. ");
       } finally {
+        // Indique que le chargement est terminé, qu'il y ait eu une erreur ou non
         setLoading(false);
       }
     };
-
     fetchUserInfo();
   }, []);
 
+  // Si le chargement est en cours, affiche un spinner
   if (loading) return <LoadingSpinner />;
+  // Si une erreur est survenue, affiche un message d'erreur
   if (error)
     return (
       <p>Erreur lors de l’obtention des informations utilisateur : {error}</p>
     );
+  // Si aucune donnée utilisateur n'est disponible, affiche un message approprié
   if (!user) return <p>Aucune information sur l’utilisateur</p>;
 
+  // Affiche les informations du profil utilisateur dans une carte
   return (
     <Box
       display="flex"

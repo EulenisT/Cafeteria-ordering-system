@@ -28,9 +28,7 @@ public class CommandeService {
 
 
     private final ICommandeDao commandeDao;
-
     private final SessionService sessionService;
-
     private final UserService userService;
 
     @Qualifier("ISandwichDao")
@@ -43,79 +41,109 @@ public class CommandeService {
         this.articleDao = articleDao;
     }
 
+    /**
+     * Enregistre une commande à partir des informations du DTO.
+     * Cette méthode récupère la session active, l'utilisateur courant et traite chaque ligne de commande.
+     * Les caches relatifs aux commandes sont vidés après l'enregistrement.
+     *
+     * @param createDto le DTO contenant les informations de la commande à créer
+     * @return la commande enregistrée
+     * @throws RuntimeException si aucune session active n'est trouvée ou si l'utilisateur est introuvable
+     */
+
     @Transactional
 @CacheEvict(value = {"commandes", "commandesBySession", "commandesBySessionAndDate"}, allEntries = true)
 public Commande saveCommande(CreateCommandeDto createDto) {
-    // Recuperar la sesión activa
+        // Récupérer la session active
     Optional<Session> sessionOpt = sessionService.getActiveSession().stream().findFirst();
     if (sessionOpt.isEmpty()) {
         throw new RuntimeException("Impossible de passer une commande car aucune session n'est active");
     }
     Session session = sessionOpt.get();
 
-    // Crear la commande
+        // Créer une nouvelle commande et définir la session et la date
     Commande commande = new Commande();
     commande.setSessionNom(session.getNom());
     commande.setDate(LocalDate.now());
 
-    // Recuperar el usuario actual
+        // Récupérer l'utilisateur courant
     String currentUserName = getCurrentUserName();
     if (currentUserName == null || currentUserName.isEmpty()) {
         throw new RuntimeException("Le nom de l'utilisateur ne peut être vide");
     }
     User user = userService.getUserById(currentUserName)
-            .orElseThrow(() -> new RuntimeException("User not found: " + currentUserName));
+            .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé: " + currentUserName));
     commande.setUser(user);
 
-    // Procesar cada línea de commande a partir del DTO.
-    // Usamos el méodo 'lignesCmd()' del DTO (renombrado para evitar conflictos) para acceder a la lista.
+        // Traiter chaque ligne de commande à partir du DTO
     List<LigneCmd> lignes = createDto.lignesCmd().stream().map((CreateLigneCmdDto createLigne) -> {
-        // Recuperar el código del artículo desde el DTO
+        // Récupérer le code de l'article depuis le DTO
         String articleCode = createLigne.articleCode();
-        // Buscar el artículo en la base de datos; findById retornará Optional<Sandwiches>
+        // Rechercher l'article (sandwich) correspondant
         Sandwiches article = articleDao.findById(articleCode)
-                .orElseThrow(() -> new RuntimeException("Article not found: " + articleCode));
+                .orElseThrow(() -> new RuntimeException("Article non trouvé: " + articleCode));
 
-        // Crear la línea de commande
+        // Créer une nouvelle ligne de commande et définir ses propriétés
         LigneCmd ligne = new LigneCmd();
-        // Asignar la relación con TARTICLE
         ligne.setArticle(article);
-        // Asignar el nombre del artículo y el precio, obtenidos del objeto Article
         ligne.setNomSandwich(article.getNom());
         ligne.setPrix(article.getPrix());
-        // Asignar la descripción proporcionada en el DTO
         ligne.setDescription(createLigne.description());
         return ligne;
     }).collect(Collectors.toList());
 
-    // Establecer la relación inversa: cada línea conoce su commande.
-    // Utilizamos el setter de la entidad Commande, no accedemos directamente a la propiedad 'lignes'
+        // Définir la relation entre chaque ligne et la commande
     lignes.forEach(ligne -> ligne.setCmd(commande));
     commande.setLignes(lignes);
 
-    // Guardar la commande (con sus líneas asociadas)
+        // Enregistrer la commande avec ses lignes associées
     return commandeDao.save(commande);
 }
 
+    /**
+     * Récupère le nom de l'utilisateur courant à partir du contexte de sécurité.
+     */
     private String getCurrentUserName() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return (authentication != null) ? authentication.getName() : null;
     }
 
+    /**
+     * Récupère toutes les commandes d'une session donnée, en utilisant le cache.
+     *
+     * @param sessionNom le nom de la session
+     * @return la liste des commandes associées à la session
+     */
     @Cacheable(value = "commandesBySession", key = "#sessionNom")
     public List<Commande> getAllCommandesBySession(String sessionNom) {
         return commandeDao.findBySessionNom(sessionNom);
     }
 
+    /**
+     * Récupère toutes les commandes.
+     * @return la liste de toutes les commandes
+     */
     public List<Commande> getAllCommandes() {
         return commandeDao.findAll();
     }
 
+    /**
+     * Récupère une commande par son identifiant, en utilisant le cache.
+     *
+     * @param id l'identifiant de la commande
+     */
     @Cacheable(value = "commandes", key = "#id")
     public Optional<Commande> getCommandeById(Integer id) {
         return commandeDao.findById(id);
     }
 
+    /**
+     * Récupère les commandes d'une session et d'une date spécifique sous forme de DTO.
+     * Utilise le cache pour optimiser la récupération.
+     *
+     * @param sessionNom le nom de la session
+     * @param date la date des commandes
+     */
     @Cacheable(value = "commandesBySessionAndDate", key = "#sessionNom + '_' + #date.toString()")
     public List<ListCmdSessionDto> getCommandesBySessionAndDate(String sessionNom, LocalDate date) {
 
@@ -143,7 +171,13 @@ public Commande saveCommande(CreateCommandeDto createDto) {
         }).collect(Collectors.toList());
     }
 
-    // Verifica si la commande se puede eliminar (solo si la sesión asociada está en estado OUVERTE)
+    /**
+     * Vérifie si une commande est supprimable.
+     * Une commande est supprimable uniquement si la session associée est ouverte.
+     *
+     * @param commande la commande à vérifier
+     * @return true si la commande peut être supprimée, false sinon
+     */
     public boolean isDeletable(Commande commande) {
         Optional<Session> sessionOpt = sessionService.getSessions().stream()
                 .filter(s -> s.getNom().equalsIgnoreCase(commande.getSessionNom()))
@@ -152,32 +186,43 @@ public Commande saveCommande(CreateCommandeDto createDto) {
             return false;
         }
         Session session = sessionOpt.get();
-        // Se permite eliminar únicamente si la sesión está abierta (OUVERTE)
         return session.getEtat() == Session.EtatSession.OUVERTE;
     }
 
+    /**
+     * Effectue un remboursement pour un utilisateur.
+     *
+     * @param username le nom de l'utilisateur
+     * @param amount le montant à rembourser
+     */
     private void refund(String username, BigDecimal amount) {
         userService.crediterUser(username, amount);
     }
 
-    // Elimina una commande, procesando el reembolso y verificando la condición de eliminación
+    /**
+     * Supprime une commande.
+     * Vérifie si la commande peut être supprimée, effectue le remboursement du total de la commande,
+     * et supprime la commande de la base de données.
+     *
+     * @param id l'identifiant de la commande à supprimer
+     */
     @Transactional
     public void deleteCommande(Integer id) {
         Optional<Commande> commandeOpt = commandeDao.findById(id);
         if (commandeOpt.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Commande not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Commande non trouvée");
         }
         Commande commande = commandeOpt.get();
         if (!isDeletable(commande)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "La commande no se puede eliminar en este estado");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "La commande ne peut pas être supprimée dans cet état");
         }
-        // Calcular el total a reembolsar
+        // Calculer le total à rembourser
         BigDecimal total = commande.getLignes().stream()
                 .map(ligne -> ligne.getPrix())
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        // Procesar el reembolso
+        // Effectuer le remboursement
         refund(commande.getUser().getUsername(), total);
-        // Eliminar la commande
+        // Supprimer la commande
         commandeDao.delete(commande);
     }
 }
