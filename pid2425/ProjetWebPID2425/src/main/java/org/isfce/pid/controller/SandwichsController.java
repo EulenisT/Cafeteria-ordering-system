@@ -21,6 +21,10 @@ public class SandwichsController {
 		this.dao = sandwichDao;
 	}
 
+	/**
+	 * Récupère un sandwich par son code.
+	 * @param code le code du sandwich
+	 */
 	@GetMapping("/{code}")
 	public ResponseEntity<Sandwiches> getSandwichs(@PathVariable("code") String code) {
 		Optional<Sandwiches> oSand = dao.findById(code);
@@ -31,18 +35,31 @@ public class SandwichsController {
 			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 	}
 
+	/**
+	 * Récupère la liste de tous les sandwichs.
+	 */
 	@GetMapping(params = "all")
 	ResponseEntity<List<Sandwiches>> getListeSandwichs() {
 		return new ResponseEntity<>(dao.findAll(), HttpStatus.OK);
 	}
 
+
+	/**
+	 * Récupère la liste des sandwichs selon leur disponibilité.
+	 * @param dispo la disponibilité (par défaut true)
+	 */
 	@GetMapping(params = "dispo")
 	ResponseEntity<List<Sandwiches>> getListeSandwichsDispo(
 			@RequestParam(name = "dispo", defaultValue = "true") boolean dispo) {
 		return new ResponseEntity<>(dao.sandwichDiponibles(dispo), HttpStatus.OK);
 	}
 
-
+	/**
+	 * Ajoute un nouveau sandwich.
+	 * Accessible uniquement aux rôles CAFET et ADMIN.
+	 *
+	 * @param sandwiches le sandwich à ajouter
+	 */
 	@PostMapping(path = "/add", consumes = "application/json")
 	@PreAuthorize("hasAnyRole('CAFET','ADMIN')")
 	public ResponseEntity<Sandwiches> addSandwiches(@Valid @RequestBody Sandwiches sandwiches) {
@@ -50,6 +67,12 @@ public class SandwichsController {
 		return ResponseEntity.ok(sandwiches);
 	}
 
+	/**
+	 * Supprime un sandwich par son code.
+	 * Accessible uniquement aux rôles CAFET et ADMIN.
+	 *
+	 * @param code le code du sandwich à supprimer
+	 */
 	@DeleteMapping("/{code}/delete")
 	@PreAuthorize("hasAnyRole('CAFET','ADMIN')")
 	public ResponseEntity<String> deleteSandwiches(@PathVariable("code") String code) {
@@ -61,7 +84,10 @@ public class SandwichsController {
 	}
 
 	/**
-	 * Méthode PUT pour mettre à jour la disponibilité.
+	 * Méthode PUT pour mettre à jour la disponibilité d'un sandwich.
+	 *
+	 * @param code le code du sandwich
+	 * @param disponible la nouvelle disponibilité
 	 */
 	@PutMapping("/{code}/disponible")
 	@PreAuthorize("hasAnyRole('CAFET','ADMIN')")
@@ -79,7 +105,5 @@ public class SandwichsController {
 			return ResponseEntity.notFound().build();
 		}
 	}
-
-	//test pour voir la personne authentifiée TO DO
 
 }

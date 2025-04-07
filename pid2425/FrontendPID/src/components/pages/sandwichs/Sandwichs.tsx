@@ -41,6 +41,7 @@ import LoadingSpinner from "../../loadingSpinner/LoadingSpinner.tsx";
 import MySingleSauceNotification from "../../snackbar/MySingleSauceNotification.tsx";
 import MaxSandwichNotification from "../../snackbar/MaxSandwichNotification.tsx";
 
+// Mappe les noms de sandwich aux images correspondantes
 const imageMap: { [key: string]: string } = {
   "Poulet Curry": pouletCurry,
   Boulette: boulette,
@@ -49,12 +50,14 @@ const imageMap: { [key: string]: string } = {
 };
 
 export default function Sandwichs() {
+  // Récupère la liste des sandwichs via React Query
   const { data, error, isSuccess } = useQuery({
     queryKey: ["sandwichs"],
     queryFn: getSandwiches,
   });
   const dispatch = useDispatch();
 
+  // États locaux pour la gestion de la fenêtre modale et des sélections
   const [modalOpen, setModalOpen] = useState(false);
   const [currentSandwich, setCurrentSandwich] =
     useState<SandwichesResponse | null>(null);
@@ -67,44 +70,48 @@ export default function Sandwichs() {
   const [maxSandwichNotificationOpen, setMaxSandwichNotificationOpen] =
     useState(false);
 
+  // Récupère l'utilisateur courant depuis Redux
   const { currentUser, carts } = useSelector(
     (state: RootState) => state.EXPENSE,
   );
+  // Obtient les sandwichs de l'utilisateur courant
   const personalizedSandwiches =
     currentUser && carts[currentUser]
       ? carts[currentUser].personalizedSandwiches
       : [];
 
-  // Requêtes pour garnitures et sauces (activées uniquement lorsque la fenêtre modale est ouverte)
+  // Requête pour récupérer les garnitures, activée uniquement quand la modale est ouverte
   const { data: garnitureData, isLoading: garnitureLoading } = useQuery({
     queryKey: ["garniture"],
     queryFn: getGarniture,
     enabled: modalOpen,
   });
 
+  // Requête pour récupérer les sauces, activée uniquement quand la modale est ouverte
   const { data: saucesData, isLoading: saucesLoading } = useQuery({
     queryKey: ["sauces"],
     queryFn: getSauces,
     enabled: modalOpen,
   });
 
+  // Affiche un spinner de chargement ou un message d'erreur si nécessaire
   if (!isSuccess) {
     return <LoadingSpinner />;
   } else if (error) {
     return <span>Erreur...</span>;
   }
 
-  // En cliquant sur une carte, la fenêtre modale s’ouvre
+  // Ouvre la modale en sélectionnant un sandwich
   const handleCardClick = (sandwich: SandwichesResponse) => {
     setCurrentSandwich(sandwich);
-    setSelectedGarnitures([]);
-    setSelectedSauces([]);
+    setSelectedGarnitures([]); // Réinitialise les garnitures sélectionnées
+    setSelectedSauces([]); // Réinitialise les sauces sélectionnées
     setModalOpen(true);
   };
 
-  // Garniture
+  // Fonction pour ajouter ou retirer une garniture de la sélection
   const toggleGarniture = (garniture: GarnitureResponse) => {
-    if (!garniture.disponible) return;
+    if (!garniture.disponible) return; // Ne rien faire si la garniture n'est pas disponible
     setSelectedGarnitures((prev) =>
       prev.includes(garniture.nom)
         ? prev.filter((name) => name !== garniture.nom)
@@ -112,22 +119,25 @@ export default function Sandwichs() {
     );
   };
 
-  // Sauces
+  // Fonction pour ajouter ou retirer une sauce de la sélection
   const toggleSauces = (sauce: SaucesResponse) => {
-    if (!sauce.disponible) return;
+    if (!sauce.disponible) return; // Ne rien faire si la sauce n'est pas disponible
 
     if (selectedSauces.includes(sauce.nom)) {
+      // Si déjà sélectionnée, la retirer
       setSelectedSauces((prev) => prev.filter((name) => name !== sauce.nom));
     } else {
+      // Si une sauce est déjà sélectionnée, afficher une notification d'erreur
       if (selectedSauces.length >= 1) {
         setSingleSauceNotificationOpen(true);
         return;
       }
+      // Sinon, ajouter la sauce à la sélection
       setSelectedSauces((prev) => [...prev, sauce.nom]);
     }
   };
 
-  // Lors de l’enregistrement, l’action est expédiée, la sélection est effacée et la notification est affichée
+  // Fonction appelée lors de la validation dans la modale
   const handleModalSave = () => {
     // Vérifier si le panier contient déjà 5 sandwichs
     if (personalizedSandwiches.length >= 5) {
@@ -136,6 +146,7 @@ export default function Sandwichs() {
     }
 
     if (currentSandwich) {
+      // Envoie l'action pour ajouter le sandwich personnalisé au panier via Redux
       dispatch(
         addPersonalizedSandwich({
           code: currentSandwich.code,
@@ -146,14 +157,16 @@ export default function Sandwichs() {
         }),
       );
     }
+    // Ferme la modale et réinitialise les sélections
     setModalOpen(false);
     setCurrentSandwich(null);
     setSelectedGarnitures([]);
     setSelectedSauces([]);
+    // Affiche une notification de succès
     setAddSandwichNotificationOpen(true);
   };
 
-  // Contenu de la fenêtre modale
+  // Contenu affiché dans la fenêtre modale pour personnaliser le sandwich
   const renderModalContent = () => (
     <>
       <DialogTitle sx={{ mt: 1, fontFamily: "cursive", fontWeight: "bold" }}>
@@ -267,6 +280,7 @@ export default function Sandwichs() {
 
   return (
     <>
+      {/* Affiche la grille de cartes pour chaque sandwich */}
       <Grid container spacing={4} justifyContent="center" alignItems="center">
         {data?.map((sandwich: SandwichesResponse) => (
           <Grid
@@ -323,6 +337,7 @@ export default function Sandwichs() {
           </Grid>
         ))}
       </Grid>
+      {/* Fenêtre modale pour personnaliser le sandwich */}
       <Dialog
         open={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -331,20 +346,20 @@ export default function Sandwichs() {
       >
         {renderModalContent()}
       </Dialog>
+
+      {/* Notifications pour diverses actions */}
       <AddSandwichNotification
         open={addSandwichNotificationOpen}
         onClose={(_: any, reason: string) => {
           if (reason !== "clickaway") setAddSandwichNotificationOpen(false);
         }}
       />
-
       <MySingleSauceNotification
         open={singleSauceNotificationOpen}
         onClose={(_: any, reason?: string) => {
           if (reason !== "clickaway") setSingleSauceNotificationOpen(false);
         }}
       />
-
       <MaxSandwichNotification
         open={maxSandwichNotificationOpen}
         onClose={(_: any, reason?: string) => {

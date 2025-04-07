@@ -7,6 +7,7 @@ import { Historique } from "./historique/Historique.tsx";
 export default function HomePage() {
   return (
     <>
+      {/* Conteneur principal pour centrer le bouton sur la page */}
       <Box
         sx={{
           display: "flex",
@@ -40,6 +41,7 @@ export default function HomePage() {
           </Grid>
         </Grid>
       </Box>
+      {/* Inclusion du composant Historique qui affiche l'historique des commandes */}
       <Historique />
     </>
   );

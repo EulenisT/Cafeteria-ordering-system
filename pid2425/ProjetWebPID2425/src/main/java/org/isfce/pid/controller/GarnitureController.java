@@ -23,6 +23,10 @@ public class GarnitureController {
 		this.dao = dao;
 	}
 
+	/**
+	 * Récupère une garniture par son code.
+	 * @param code le code de la garniture
+	 */
 	@GetMapping("/{code}")
 	public ResponseEntity<Garniture> getGarniture(@PathVariable("code") String code) {
 		Optional<Garniture> oGarn = dao.findById(code);
@@ -33,16 +37,30 @@ public class GarnitureController {
 			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 	}
 
+	/**
+	 * Récupère la liste de toutes les garnitures.
+	 */
 	@GetMapping(params = "all")
 	ResponseEntity<List<Garniture>> getListeGarniture() {
 		return new ResponseEntity<>(dao.findAll(), HttpStatus.OK);
 	}
 
+	/**
+	 * Récupère la liste des garnitures selon leur disponibilité.
+	 * @param dispo la disponibilité (par défaut true)
+	 */
 	@GetMapping(params = "dispo")
 	ResponseEntity<List<Garniture>> getListeGarnitureDispo(
 			@RequestParam(name = "dispo", defaultValue = "true", required = false) boolean dispo) {
 		return new ResponseEntity<>(dao.garnitureDiponibles(dispo), HttpStatus.OK);
 	}
+
+	/**
+	 * Ajoute une nouvelle garniture.
+	 * Accessible uniquement aux rôles CAFET et ADMIN.
+	 *
+	 * @param garniture la garniture à ajouter
+	 */
 
 	@PostMapping(path = "/add", consumes = "application/json")
 	@PreAuthorize("hasAnyRole('CAFET','ADMIN')")
@@ -51,6 +69,12 @@ public class GarnitureController {
 		return ResponseEntity.ok(garniture);
 	}
 
+	/**
+	 * Supprime une garniture par son code.
+	 * Accessible uniquement aux rôles CAFET et ADMIN.
+	 *
+	 * @param code le code de la garniture à supprimer
+	 */
 	@DeleteMapping("/{code}/delete")
 	@PreAuthorize("hasAnyRole('CAFET','ADMIN')")
 	public ResponseEntity<String> deleteGarniture(@PathVariable("code") String code) {
@@ -63,6 +87,9 @@ public class GarnitureController {
 
 	/**
 	 * Méthode PUT pour mettre à jour la disponibilité d’une garniture.
+	 *
+	 * @param code le code de la garniture
+	 * @param disponible la nouvelle disponibilité
 	 */
 	@PutMapping("/{code}/disponible")
 	@PreAuthorize("hasAnyRole('CAFET','ADMIN')")
@@ -80,8 +107,13 @@ public class GarnitureController {
 			return ResponseEntity.notFound().build();
 		}
 	}
-	
-	//test pour voir la personne authentifiée
+
+	/**
+	 * Méthode de test pour afficher l'utilisateur authentifié.
+	 *
+	 * @param a l'objet d'authentification
+	 * @return l'objet Authentication de l'utilisateur
+	 */
 	@GetMapping("/demo")
 	public Authentication demo(Authentication a) {
 	return a;

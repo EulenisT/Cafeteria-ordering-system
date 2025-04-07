@@ -18,10 +18,12 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { SnackbarProvider } from "notistack";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
+// Création du client de requête pour React Query
 const queryClient = new QueryClient();
 
 export default function App() {
   return (
+    // Fournisseur Keycloak pour gérer l'authentification
     <ReactKeycloakProvider
       authClient={keycloak}
       initOptions={{
@@ -41,8 +43,10 @@ export default function App() {
         </Grid>
       }
     >
+      {/* Fournisseur pour React Query */}
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
+          {/* Fournisseur de notifications (snackbars) avec Notistack */}
           <SnackbarProvider
             maxSnack={3}
             iconVariant={{
@@ -62,9 +66,11 @@ export default function App() {
                     backgroundColor: "white",
                   }}
                 >
+                  {/* Barre de navigation */}
                   <NavBar />
                   <Box sx={{ flexGrow: 1 }}>
                     <Routes>
+                      {/* Définition des routes de l'application */}
                       <Route path="/" element={<HomePage />} />
                       <Route path="menu" element={<Sandwichs />} />
                       <Route path="compte" element={<Compte />} />
@@ -72,6 +78,7 @@ export default function App() {
                       <Route path="*" element={<PageNotFound />} />
                     </Routes>
                   </Box>
+                  {/* Pied de page */}
                   <Footer />
                 </Box>
               </Container>

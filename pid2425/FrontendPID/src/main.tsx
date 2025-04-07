@@ -5,6 +5,7 @@ import { store, persistor } from "./store/store.ts";
 import { PersistGate } from "redux-persist/integration/react";
 
 createRoot(document.getElementById("root")!).render(
+  // Fournit le store Redux à l'application
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
       <App />

@@ -6,10 +6,12 @@ import {
   SnackbarCloseReason,
 } from "@mui/material";
 
+// Transition personnalisée pour le Snackbar avec un effet de glissement vers le haut
 const SlideTransition = (props: SlideProps) => {
   return <Slide {...props} direction="up" />;
 };
 
+// Interface définissant les propriétés attendues par le composant
 interface SandwichNotificationProps {
   open: boolean;
   onClose: (
@@ -18,6 +20,7 @@ interface SandwichNotificationProps {
   ) => void;
 }
 
+// Composant de notification pour indiquer qu'un sandwich a été ajouté au panier
 const AddSandwichNotification: React.FC<SandwichNotificationProps> = ({
   open,
   onClose,
