@@ -30,24 +30,29 @@ import LoadingSpinner from "../../../loadingSpinner/LoadingSpinner.tsx";
 import { getSessions } from "../../../../api/sessionApi.ts";
 
 export function Historique() {
+  // État pour stocker la liste des commandes
   const [commandes, setCommandes] = useState<CommandeResponse[]>([]);
+  // État pour indiquer le chargement des données
   const [loading, setLoading] = useState<boolean>(true);
+  // État pour stocker un message d'erreur
   const [error, setError] = useState<string | null>(null);
+  // État pour stocker les numéros de commandes sélectionnées
   const [selectedCommandes, setSelectedCommandes] = useState<number[]>([]);
   const dispatch = useDispatch();
 
-  // Informations de l'utilisateur
+  // Récupération des informations utilisateur via React Query
   const { data: userInfo, isLoading: userLoading } = useQuery<UserResponse>({
     queryKey: ["userInfo"],
     queryFn: getUserInfo,
   });
 
-  // Informations de session
+  // Récupération des sessions via React Query
   const { data: sessions } = useQuery<SessionResponse[]>({
     queryKey: ["sessions"],
     queryFn: getSessions,
   });
 
+  // Utilisation de useEffect pour charger l'historique des commandes au montage du composant
   useEffect(() => {
     const fetchCommandes = async () => {
       try {
@@ -56,24 +61,30 @@ export function Historique() {
       } catch (err) {
         setError("Erreur lors du chargement de l’historique des commandes");
       } finally {
-        setLoading(false);
+        setLoading(false); // Fin du chargement, réussi ou non
       }
     };
     fetchCommandes();
   }, []);
 
+  // Affiche un spinner de chargement si les données sont en cours de chargement
   if (loading || userLoading) {
     return <LoadingSpinner />;
   }
+  // Affiche un message d'erreur en cas de problème
   if (error) {
     return (
       <Typography color="error">Erreur lors du chargement : {error}</Typography>
     );
   }
 
+  // Filtre les commandes pour l'utilisateur courant
   const currentUser = userInfo?.username;
-  const userCommandes = commandes.filter((c) => c.user?.username === currentUser);
+  const userCommandes = commandes.filter(
+    (c) => c.user?.username === currentUser,
+  );
 
+  // Affiche un message si aucune commande n'est trouvée pour l'utilisateur
   if (userCommandes.length === 0) {
     return (
       <Box
@@ -94,12 +105,16 @@ export function Historique() {
     );
   }
 
+  // Trie les commandes par date décroissante et par numéro si les dates sont identiques
   const sortedCommandes = [...userCommandes].sort((a, b) => {
     const dateDiff = new Date(b.date).getTime() - new Date(a.date).getTime();
     return dateDiff === 0 ? b.num - a.num : dateDiff;
   });
+  // Récupère les trois dernières commandes
   const lastThree = sortedCommandes.slice(0, 3);
 
+  // Fonction pour sélectionner/désélectionner une commande
+  // Si la commande est sélectionnée, elle la désélectionne, et si elle ne l'est pas, elle l'ajoute à la liste des éléments sélectionnés.
   const toggleSelection = (commandeNum: number) => {
     setSelectedCommandes((prevSelected) =>
       prevSelected.includes(commandeNum)
@@ -108,6 +123,7 @@ export function Historique() {
     );
   };
 
+  // Ajoute les commandes sélectionnées au panier
   const handleAddSelectedToCart = () => {
     lastThree.forEach((commande) => {
       if (selectedCommandes.includes(commande.num)) {
@@ -124,10 +140,11 @@ export function Historique() {
         });
       }
     });
+    // Réinitialise la sélection des commandes
     setSelectedCommandes([]);
   };
 
-  // Annuler une commande
+  // Supprime une commande et met à jour le solde utilisateur
   const handleDelete = async (commandeNum: number) => {
     try {
       await deleteCommande(commandeNum);
@@ -156,15 +173,15 @@ export function Historique() {
           Historique des dernières commandes
         </Typography>
         {lastThree.map((commande) => {
-          console.log("Commande:", commande);
-
+          // Calcul du prix total de la commande
           const totalPrice = (commande.lignes ?? []).reduce(
-              (acc, ligne) => acc + ligne.prix,
-              0,
+            (acc, ligne) => acc + ligne.prix,
+            0,
           );
+          // Vérifie si la commande est sélectionnée
           const isSelected = selectedCommandes.includes(commande.num);
 
-          // Session correspondant à la commande en comparant le nom
+          // Recherche la session associée à la commande (comparaison du nom)
           const session = sessions?.find(
             (s) => s.nom.toUpperCase() === commande.sessionNom.toUpperCase(),
           );
@@ -172,7 +189,7 @@ export function Historique() {
           const isTodayCommande =
             new Date(commande.date).toLocaleDateString() ===
             new Date().toLocaleDateString();
-          // Le bouton est désactivé si la session existe et son état n’est pas "OUVERTE"
+          // Désactive le bouton si la session existe et n'est pas ouverte ou si la commande n'est pas d'aujourd'hui
           const disabledButton = session
             ? session.etat.toUpperCase() !== "OUVERTE" || !isTodayCommande
             : false;
@@ -188,6 +205,7 @@ export function Historique() {
                 cursor: "pointer",
               }}
             >
+              {/* Affiche la date et la session de la commande */}
               <CardHeader
                 subheader={`Fecha: ${new Date(
                   commande.date,
@@ -197,6 +215,7 @@ export function Historique() {
               />
               <CardContent>
                 <List>
+                  {/* Liste des lignes de la commande */}
                   {(commande.lignes ?? []).map((ligne) => (
                     <ListItem key={ligne.num}>
                       <ListItemText
@@ -218,6 +237,7 @@ export function Historique() {
                   ))}
                 </List>
                 <Divider sx={{ marginY: 1 }} />
+                {/* Affiche le prix total de la commande */}
                 <Typography
                   variant="subtitle1"
                   align="right"
@@ -233,11 +253,12 @@ export function Historique() {
               <CardActions
                 sx={{ justifyContent: "center", marginBottom: "10px" }}
               >
+                {/* Bouton pour annuler (supprimer) la commande */}
                 <Button
                   variant="contained"
                   disabled={disabledButton}
                   onClick={(e) => {
-                    e.stopPropagation();
+                    e.stopPropagation(); // Empêche la propagation pour ne pas déclencher la sélection
                     handleDelete(commande.num);
                   }}
                   sx={{
@@ -258,6 +279,7 @@ export function Historique() {
             </Card>
           );
         })}
+        {/* Bouton pour ajouter les commandes sélectionnées au panier */}
         <Box sx={{ textAlign: "center", mt: 4 }}>
           <Button
             variant="contained"

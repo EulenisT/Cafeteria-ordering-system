@@ -51,7 +51,7 @@ public class User {
 
 	public BigDecimal crediter(BigDecimal montant) {
 		if (montant.compareTo(BigDecimal.ZERO) < 0) {
-			throw new IllegalArgumentException("El monto debe ser positivo");
+			throw new IllegalArgumentException("Le montant doit être positif");
 		}
 		solde = solde.add(montant);
 		return solde;
@@ -59,10 +59,10 @@ public class User {
 
 	public BigDecimal debiter(BigDecimal montant) {
 		if (montant.compareTo(BigDecimal.ZERO) < 0) {
-			throw new IllegalArgumentException("El monto debe ser positivo");
+			throw new IllegalArgumentException("Le montant doit être positif");
 		}
 		if (solde.compareTo(montant) < 0) {
-			throw new IllegalArgumentException("Fondos insuficientes para el usuario");
+			throw new IllegalArgumentException("Fonds insuffisants pour l'utilisateur");
 		}
 		solde = solde.subtract(montant);
 		return solde;

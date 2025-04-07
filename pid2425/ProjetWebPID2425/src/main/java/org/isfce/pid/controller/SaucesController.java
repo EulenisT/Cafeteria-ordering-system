@@ -21,6 +21,10 @@ public class SaucesController {
         this.dao = dao;
     }
 
+    /**
+     * Récupère une sauce par son code.
+     * @param code le code de la sauce
+     */
     @GetMapping("/{code}")
     public ResponseEntity<Sauces> getSauces(@PathVariable("code") String code) {
         Optional<Sauces> oSau = dao.findById(code);
@@ -31,17 +35,31 @@ public class SaucesController {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
 
+    /**
+     * Récupère la liste de toutes les sauces
+     */
     @GetMapping(params = "all")
     ResponseEntity<List<Sauces>> getListeSauces() {
         return new ResponseEntity<>(dao.findAll(), HttpStatus.OK);
     }
 
+    /**
+     * Récupère la liste des sauces selon leur disponibilité.
+     *
+     * @param dispo la disponibilité (par défaut true)
+     */
     @GetMapping(params = "dispo")
     ResponseEntity<List<Sauces>> getListeSaucesDispo(
             @RequestParam(name = "dispo", defaultValue = "true", required = false) boolean dispo) {
         return new ResponseEntity<>(dao.saucesDiponibles(dispo), HttpStatus.OK);
     }
 
+    /**
+     * Ajoute une nouvelle sauce.
+     * Accessible uniquement aux rôles CAFET et ADMIN.
+     *
+     * @param sauces la sauce à ajouter
+     */
     @PostMapping(path = "/add", consumes = "application/json")
     @PreAuthorize("hasAnyRole('CAFET','ADMIN')")
     public ResponseEntity<Sauces> addSauces(@Valid @RequestBody Sauces sauces) {
@@ -49,6 +67,12 @@ public class SaucesController {
         return ResponseEntity.ok(sauces);
     }
 
+    /**
+     * Supprime une sauce par son code.
+     * Accessible uniquement aux rôles CAFET et ADMIN.
+     *
+     * @param code le code de la sauce à supprimer
+     */
     @DeleteMapping("/{code}/delete")
     @PreAuthorize("hasAnyRole('CAFET','ADMIN')")
     public ResponseEntity<String> deleteSauces(@PathVariable("code") String code) {
@@ -61,6 +85,9 @@ public class SaucesController {
 
     /**
      * Méthode PUT pour mettre à jour la disponibilité d’une sauce.
+     *
+     * @param code le code de la sauce
+     * @param disponible la nouvelle disponibilité
      */
     @PutMapping("/{code}/disponible")
     @PreAuthorize("hasAnyRole('CAFET','ADMIN')")
@@ -79,7 +106,12 @@ public class SaucesController {
         }
     }
 
-    //test pour voir la personne authentifiée
+    /**
+     * Méthode de test pour afficher l'utilisateur authentifié.
+     *
+     * @param a l'objet d'authentification
+     * @return l'objet Authentication de l'utilisateur
+     */
     @GetMapping("/demo")
     public Authentication demo(Authentication a) {
         return a;

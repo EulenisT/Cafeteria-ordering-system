@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import {
   Box,
   List,
@@ -20,7 +20,6 @@ import {
   setBalanceUser,
   setCurrentUser,
 } from "../../../../store/expense/expense-slice";
-import PaymentErrorSnackbar from "../snackbar_panier/PaymentErrorSnackbar/PaymentErrorSnackbar";
 import { RootState } from "../../../../store/store";
 import { getActiveSession } from "../../../../api/sessionApi";
 import { SessionResponse } from "../../../../types";
@@ -29,16 +28,20 @@ import CloseIcon from "@mui/icons-material/Close";
 
 export function Panier() {
   const dispatch = useDispatch();
+  // Utilisation de notistack pour afficher des notifications (snackbars)
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
+  // Récupère l'utilisateur courant, le panier et le solde depuis le store Redux
   const { currentUser, carts, balanceUser } = useSelector(
     (state: RootState) => state.EXPENSE,
   );
+  // Récupère les sandwichs du panier de l'utilisateur courant
   const personalizedSandwiches =
     currentUser && carts[currentUser]
       ? carts[currentUser].personalizedSandwiches
       : [];
 
+  // Récupère les informations utilisateur via React Query
   const { data: userProfile, isSuccess } = useQuery({
     queryKey: ["userInfo"],
     queryFn: getUserInfo,
@@ -50,9 +53,11 @@ export function Panier() {
     staleTime: 60000,
   });
 
+  // Détermine le nom d'utilisateur à utiliser
   const username =
     userProfile?.username || keycloak.tokenParsed?.preferred_username || "";
 
+  // Met à jour le store Redux avec les informations utilisateur récupérées
   useEffect(() => {
     if (isSuccess && userProfile) {
       dispatch(setCurrentUser(userProfile.username));
@@ -60,26 +65,33 @@ export function Panier() {
     }
   }, [isSuccess, userProfile, dispatch]);
 
+  // Récupère les sessions actives via React Query, avec une actualisation toutes les 60 secondes
   const { data: activeSessions } = useQuery<SessionResponse[]>({
     queryKey: ["activeSession"],
     queryFn: getActiveSession,
     refetchInterval: 60000,
   });
 
+  // Sélectionne la première session active ou null s'il n'y en a pas
   const activeSession =
     activeSessions && activeSessions.length > 0 ? activeSessions[0] : null;
-  const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
+  // État pour contrôler l'affichage d'une Snackbar d'erreur de paiement
+  // const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
 
+  // Calcule le total des sandwichs personnalisés du panier
   const totalPersonalized = personalizedSandwiches.reduce(
     (acc, item) => acc + (Number(item.sandwichPrice) || 0),
     0,
   );
   const total = totalPersonalized;
 
+  // Fonction pour gérer le paiement
   const handlePayment = async () => {
+    // Arrondir le solde et le total à deux décimales
     const roundedSaldo = Math.round(balanceUser * 100) / 100;
     const roundedTotal = Math.round(total * 100) / 100;
 
+    // Vérifie si le solde est insuffisant
     if (roundedSaldo < roundedTotal) {
       enqueueSnackbar("Solde insuffisant", {
         variant: "error",
@@ -88,6 +100,7 @@ export function Panier() {
       return;
     }
 
+    // Vérifie qu'une session active est disponible
     if (!activeSession) {
       enqueueSnackbar("Aucune session active. Veuillez réessayer plus tard.", {
         variant: "warning",
@@ -114,19 +127,24 @@ export function Panier() {
     }
 
     try {
-        const commandePayload = {
-                lignesCmd: personalizedSandwiches.map((item) => ({
-                articleCode: item.code,
-                description: `Garnitures: ${item.garnitures.join(", ")}; Sauces: ${item.sauces.join(", ")}`,
-                prix: item.sandwichPrice,
-            })),
-    };
+      // Prépare la charge utile (payload) pour la commande à envoyer
+      const commandePayload = {
+        lignesCmd: personalizedSandwiches.map((item) => ({
+          articleCode: item.code,
+          description: `Garnitures: ${item.garnitures.join(", ")}; Sauces: ${item.sauces.join(", ")}`,
+          prix: item.sandwichPrice,
+        })),
+      };
 
+      // Envoie la commande via l'API
       await postCommande(commandePayload);
+      // Met à jour le solde utilisateur via l'API
       const newSolde = await updateUserSolde(username, total);
       dispatch(setBalanceUser(newSolde));
+      // Vide le panier dans le store Redux
       dispatch(clearCart());
 
+      // Prépare un message de confirmation en fonction de la session active
       let message = "";
       switch (activeSession.nom) {
         case "MATIN":
@@ -141,8 +159,10 @@ export function Panier() {
         default:
           message = "Commande réalisée avec succès.";
       }
+      // Affiche une notification de succès
       enqueueSnackbar(message, { variant: "success" });
     } catch (error: any) {
+      // Gère l'erreur et affiche une notification adaptée
       const errorMessage =
         (error.response && error.response.data) ||
         error.message ||
@@ -158,6 +178,7 @@ export function Panier() {
     }
   };
 
+  // Fonction pour retirer un élément du panier
   const handleRemoveItem = (id?: number) => {
     dispatch(removeFromCart({ id }));
   };
@@ -185,6 +206,7 @@ export function Panier() {
           mb: 2,
         }}
       >
+        {/* Affiche la session active ou un message indiquant qu'aucune session n'est active */}
         <Typography
           variant="h6"
           sx={{
@@ -199,6 +221,7 @@ export function Panier() {
         </Typography>
       </Box>
 
+      {/* Liste des sandwichs dans le panier */}
       <List>
         {personalizedSandwiches.length > 0 ? (
           <>
@@ -219,6 +242,7 @@ export function Panier() {
                   py: 2,
                 }}
               >
+                {/* Affiche le nom et les détails du sandwich */}
                 <ListItemText
                   primary={item.sandwichName}
                   secondary={
@@ -237,6 +261,7 @@ export function Panier() {
                     </>
                   }
                 />
+                {/* Bouton pour retirer le sandwich du panier */}
                 <Button
                   variant="outlined"
                   sx={{
@@ -260,6 +285,7 @@ export function Panier() {
         )}
       </List>
 
+      {/* Affiche le total à payer */}
       <Box
         sx={{
           mt: 3,
@@ -273,6 +299,7 @@ export function Panier() {
         </Typography>
       </Box>
 
+      {/* Bouton pour effectuer le paiement */}
       <Button
         variant="contained"
         sx={{
@@ -287,10 +314,11 @@ export function Panier() {
         Payer
       </Button>
 
-      <PaymentErrorSnackbar
-        open={errorSnackbarOpen}
-        onClose={() => setErrorSnackbarOpen(false)}
-      />
+      {/*  /!* Composant Snackbar pour afficher une erreur de paiement *!/*/}
+      {/*<PaymentErrorSnackbar*/}
+      {/*  open={errorSnackbarOpen}*/}
+      {/*  onClose={() => setErrorSnackbarOpen(false)}*/}
+      {/*/>*/}
     </Box>
   );
 }

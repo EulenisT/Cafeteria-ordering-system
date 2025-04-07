@@ -25,6 +25,13 @@ public class UserController {
 		this.userService = userService;
 	}
 
+	/**
+	 * Crédite le solde d'un utilisateur.
+	 * Accessible uniquement aux rôles CAFET et ADMIN.
+	 *
+	 * @param username le nom d'utilisateur
+	 * @param montant le montant à créditer
+	 */
 	@PostMapping(path = "/incsolde")
 	@PreAuthorize("hasAnyRole('CAFET','ADMIN')")
 	public ResponseEntity<BigDecimal> updateSolde(@RequestParam("username") String username,
@@ -34,12 +41,23 @@ public class UserController {
 		return ResponseEntity.ok(solde);
 	}
 
+	/**
+	 * Récupère la liste de tous les utilisateurs.
+	 * Accessible uniquement aux rôles CAFET et ADMIN.
+	 */
 	@PreAuthorize("hasAnyRole('CAFET','ADMIN')")
 	@GetMapping(params = "all")
 	public ResponseEntity<List<UserDto>> getAllUser() {
 		return ResponseEntity.ok(userService.getAllUserDto());
 	}
 
+	/**
+	 * Récupère le profil d'un utilisateur.
+	 * Accessible pour CAFET ou si le nom d'utilisateur correspond à l'utilisateur authentifié.
+	 *
+	 * @param username le nom d'utilisateur (identifiant)
+	 * @param auth le token d'authentification JWT
+	 */
 	@GetMapping("/profile/{id}")
 	@PreAuthorize("hasRole('CAFET') or #username == authentication.name")
 	public ResponseEntity<UserDto> getUserInfo(@PathVariable("id") String username, JwtAuthenticationToken auth) {
@@ -59,6 +77,12 @@ public class UserController {
 		return ResponseEntity.ok(userDto);
 	}
 
+	/**
+	 * Débite le solde d'un utilisateur.
+	 *
+	 * @param username le nom d'utilisateur
+	 * @param montant le montant à débiter
+	 */
 	@PostMapping(path = "/updatesolde")
 	public ResponseEntity<BigDecimal> updateSoldeDes(@RequestParam("username") String username,
 													 @RequestParam("montant") BigDecimal montant) {
@@ -67,6 +91,10 @@ public class UserController {
 		return ResponseEntity.ok(solde);
 	}
 
+	/**
+	 * Enregistre un nouvel utilisateur.
+	 * @param registrationDto les informations d'enregistrement de l'utilisateur
+	 */
 	@PostMapping("/register")
 	@PreAuthorize("hasAnyRole('CAFET','ADMIN')")
 	public ResponseEntity<UserDto> registerUser(@RequestBody UserRegistrationDto registrationDto) {

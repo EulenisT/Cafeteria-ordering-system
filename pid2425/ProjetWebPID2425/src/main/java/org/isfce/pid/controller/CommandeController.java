@@ -24,7 +24,6 @@ public class CommandeController {
         this.commandeService = commandeService;
     }
 
-
     /**
      * Retourne toutes les commandes.
      */
@@ -54,6 +53,9 @@ public class CommandeController {
         return ResponseEntity.ok(commandes);
     }
 
+    /**
+     * Retourne toutes les commandes d'une session spécifique pour une date donnée.
+     */
     @GetMapping("/session/{sessionNom}/{date}")
     @PreAuthorize("hasAnyRole('CAFET','ADMIN')")
     public ResponseEntity<List<ListCmdSessionDto>> getCommandesBySessionAndDate(@PathVariable String sessionNom,

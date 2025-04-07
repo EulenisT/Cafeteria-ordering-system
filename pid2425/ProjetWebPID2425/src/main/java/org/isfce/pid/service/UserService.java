@@ -29,6 +29,14 @@ public class UserService {
 		this.daoUser = daoUser;
 	}
 
+	/**
+	 * Crédite le solde d'un utilisateur.
+	 *
+	 * @param username le nom de l'utilisateur
+	 * @param montant le montant à créditer
+	 * @return le nouveau solde de l'utilisateur
+	 * @throws NotExistException si l'utilisateur n'existe pas
+	 */
 	public BigDecimal crediterUser(String username, BigDecimal montant) {
 		var oUser = daoUser.findById(username);
 		User user = oUser.orElseThrow(() -> new NotExistException(username));
@@ -37,6 +45,15 @@ public class UserService {
 		return solde;
 	}
 
+	/**
+	 * Débite le solde d'un utilisateur.
+	 *
+	 * @param username le nom de l'utilisateur
+	 * @param montant le montant à débiter
+	 * @return le nouveau solde de l'utilisateur
+	 * @throws NotExistException si l'utilisateur n'existe pas
+	 * @throws IllegalArgumentException si les fonds sont insuffisants
+	 */
 	public BigDecimal debiterUser(String username, BigDecimal montant) {
 		var oUser = daoUser.findById(username);
 		User user = oUser.orElseThrow(() -> new NotExistException(username));
@@ -49,29 +66,54 @@ public class UserService {
 		}
 	}
 
+	/**
+	 * Récupère la liste de tous les utilisateurs sous forme de UserDto.
+	 */
 	public List<UserDto> getAllUserDto() {
 		return daoUser.getAllUserDto();
 	}
 
+	/**
+	 * Récupère un utilisateur par son identifiant.
+	 * @param username le nom de l'utilisateur
+	 */
 	public Optional<User> getUserById(String username) {
 		return daoUser.findById(username);
 	}
 
+	/**
+	 * Ajoute un nouvel utilisateur dans la base de données.
+	 * @param user l'utilisateur à ajouter
+	 */
 	public User addUser(User user) {
 		return daoUser.save(user);
 	}
 
+	/**
+	 * Enregistre un nouvel utilisateur dans Keycloak et dans la base de données.
+	 * Cette méthode effectue les opérations suivantes :
+	 * - Configuration du Keycloak Admin Client pour le realm "CAFET".
+	 * - Création de la représentation de l'utilisateur pour Keycloak.
+	 * - Création de l'utilisateur dans le realm "CAFET".
+	 * - Configuration du mot de passe de l'utilisateur dans Keycloak.
+	 * - Attribution du rôle "USER" à l'utilisateur dans Keycloak.
+	 * - Enregistrement de l'utilisateur dans la base de données (sans mot de passe).
+	 *
+	 * @param registrationDto le DTO contenant les informations d'enregistrement de l'utilisateur
+	 * @return l'utilisateur enregistré dans la base de données
+	 * @throws RuntimeException si une erreur survient lors de l'enregistrement dans Keycloak
+	 */
 	public User registerUser(UserRegistrationDto registrationDto) {
-		// Configura el Keycloak Admin Client para el realm "CAFET"
+		// Configuration du client d'administration Keycloak pour le realm "CAFET"
 		Keycloak keycloakAdmin = KeycloakBuilder.builder()
-				.serverUrl("http://localhost:8084/")  // URL de Keycloak
-				.realm("master")                      // Se conecta al realm master para administración
-				.username("admin")                    // Usuario administrador
-				.password("admin")                    // Contraseña del administrador
-				.clientId("admin-cli")                // ClientID para administración
+				.serverUrl("http://localhost:8084/")   // URL de Keycloak
+				.realm("master")                       // Connexion au realm master pour l'administration
+				.username("admin")                     // Nom d'utilisateur administrateur
+				.password("admin")                     // Mot de passe administrateur
+				.clientId("admin-cli")                 // ClientId pour l'administration
 				.build();
 
-		// Crear la representación del usuario para Keycloak
+		// Création de la représentation de l'utilisateur pour Keycloak
 		UserRepresentation userRep = new UserRepresentation();
 		userRep.setUsername(registrationDto.username());
 		userRep.setEmail(registrationDto.email());
@@ -79,26 +121,26 @@ public class UserService {
 		userRep.setLastName(registrationDto.nom());
 		userRep.setEnabled(true);
 
-		// Crear el usuario en el realm deseado ("CAFET")
+		// Création de l'utilisateur dans le realm "CAFET"
 		Response response = keycloakAdmin.realm("CAFET").users().create(userRep);
 		if (response.getStatus() != 201) {
 			throw new RuntimeException("Erreur lors de l’enregistrement de l’utilisateur dans Keycloak: " + response.getStatusInfo());
 		}
-		// Extraer el ID del usuario creado (a partir de la URL de la cabecera Location)
+		// Extraction de l'ID de l'utilisateur créé à partir de l'URL de la réponse
 		String userId = response.getLocation().getPath().replaceAll(".*/", "");
 
-		// Configurar la contraseña en Keycloak
+		// Configuration du mot de passe dans Keycloak
 		CredentialRepresentation credential = new CredentialRepresentation();
 		credential.setTemporary(false);
 		credential.setType(CredentialRepresentation.PASSWORD);
 		credential.setValue(registrationDto.password());
 		keycloakAdmin.realm("CAFET").users().get(userId).resetPassword(credential);
 
-		// Asignar el rol "USER" al usuario
+		// Attribution du rôle "USER" à l'utilisateur dans Keycloak
 		RoleRepresentation userRole = keycloakAdmin.realm("CAFET").roles().get("USER").toRepresentation();
 		keycloakAdmin.realm("CAFET").users().get(userId).roles().realmLevel().add(List.of(userRole));
 
-		// Registrar el usuario en la base de datos (sin almacenar la contraseña)
+		// Enregistrement de l'utilisateur dans la base de données (sans mot de passe)
 		User newUser = new User(
 				registrationDto.username(),
 				registrationDto.email(),
