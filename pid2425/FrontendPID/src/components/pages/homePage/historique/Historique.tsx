@@ -207,7 +207,7 @@ export function Historique() {
             >
               {/* Affiche la date et la session de la commande */}
               <CardHeader
-                subheader={`Fecha: ${new Date(
+                subheader={`Date: ${new Date(
                   commande.date,
                 ).toLocaleDateString()} - Session: ${
                   commande.sessionNom || "N/A"

@@ -281,7 +281,7 @@ export default function Sandwichs() {
   return (
     <>
       {/* Affiche la grille de cartes pour chaque sandwich */}
-      <Grid container spacing={4} justifyContent="center" alignItems="center">
+      <Grid container spacing={4} justifyContent="center" alignItems="center" sx={{ mb: 10 }} >
         {data?.map((sandwich: SandwichesResponse) => (
           <Grid
             key={sandwich.code}
